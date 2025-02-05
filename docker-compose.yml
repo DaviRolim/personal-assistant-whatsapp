@@ -23,10 +23,13 @@ services:
       - 8000:8000
     networks:
       - evolution-net
-    environment:
-      - APP_ENV=production
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - TODOIST_API_KEY=${TODOIST_API_KEY}
+    env_file:
+      - .env
+    # environment:
+    #   - APP_ENV=production
+    #   - OPENAI_API_KEY=${OPENAI_API_KEY}
+    #   - TODOIST_API_KEY=${TODOIST_API_KEY}
+    #   - DB_URL=${DB_URL}
 
   postgres:
     image: postgres:13

@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from app.models.split_me_later import Project
+
+from app.models.project import Project
 from .base_repository import BaseRepository
 
 class ProjectRepository(BaseRepository[Project]):

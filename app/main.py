@@ -7,7 +7,7 @@ import uvicorn
 from sqlalchemy.ext.asyncio import AsyncSession
 from app import models, schemas
 from app.db.database import get_db
-from app.core.ai.agents.sql_agent import agent_response
+from app.core.ai.agents.assistant_agent_v2 import agent_response
 
 app = FastAPI()
 ai_companion_service = AICompanionService()
@@ -28,7 +28,7 @@ def read_root():
 async def webhook(request: Request, db: AsyncSession = Depends(get_db)):
     body = await request.json()
     print(f'Webhook received: {body}')
-    return ai_companion_service.handle_webhook_data(body)
+    return await ai_companion_service.handle_webhook_data(body)
 
 @app.post("/trials")
 async def trials(request: Request, db: AsyncSession = Depends(get_db)):

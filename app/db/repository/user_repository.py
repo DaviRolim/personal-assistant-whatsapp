@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from app.models.split_me_later import User
+
+from app.models.user import User
 from .base_repository import BaseRepository
 
 class UserRepository(BaseRepository[User]):

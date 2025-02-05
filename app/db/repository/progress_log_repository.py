@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from app.models.split_me_later import ProgressLog
+
+from app.models.progress_log import ProgressLog
 from .base_repository import BaseRepository
 
 class ProgressLogRepository(BaseRepository[ProgressLog]):

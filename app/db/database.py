@@ -5,6 +5,7 @@ import os
 
 load_dotenv()
 
+print(f'[DH] DB_URL: {os.getenv("DB_URL")}')
 engine = create_async_engine(os.getenv("DB_URL"), future=True)
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 

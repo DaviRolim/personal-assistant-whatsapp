@@ -8,16 +8,10 @@ WORKDIR /app
 ENV DOCKER_CONTAINER=1
 
 # Install UV and other necessary dependencies
-RUN pip install --no-cache-dir hatchling uv uvicorn fastapi openai pydantic[email] requests python-dotenv todoist-api-python google-auth google-api-python-client google-auth-oauthlib google-auth-httplib2 logging
+RUN pip install --no-cache-dir hatchling uv uvicorn fastapi openai pydantic[email] requests python-dotenv todoist-api-python logging sqlalchemy alembic asyncpg pydantic-settings
 
 # Copy dependency files
 COPY pyproject.toml ./
-
-# Create directory for tokens and set permissions
-RUN mkdir -p /app/tokens && chmod 777 /app/tokens
-
-# Copy the google-driver token
-COPY drive_token.pickle /app/tokens/
 
 # Install dependencies using UV
 RUN uv sync
