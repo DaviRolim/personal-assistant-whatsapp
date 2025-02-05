@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 from openai import OpenAI
 import os
 import json
@@ -83,10 +84,13 @@ async def agent_response(message, message_history=None):
     schema_info = get_schema_info()
     
     example_values = json.dumps([{"name": "John", "email": "john@example.com"}])
+    today = datetime.now().strftime("%Y-%m-%d")
     system_prompt = f"""
     You are a SQL expert assistant. Use these database schema details to construct queries:
     The database is a Postgres database with the following tables and columns:
     {json.dumps(schema_info, indent=2)}
+    
+    For reference today is {today}.
     
     Important rules for SQL operations:
     - For INSERT or UPDATE operations, always use parameterized queries with named parameters
@@ -101,11 +105,16 @@ async def agent_response(message, message_history=None):
     - Don't need to ask to execute, always execute the statement using the appropriate tool
     - Explain query results in natural language!
     - If some value is not provided but it's required, fill it using you best guess
+
+    ## Output guidelines:
+    - You should use a friendly tone, address me as Davi.
+    - the message will be used as a reply on a chat application, so organize it well and make it conversational
     """
     
     messages = [{"role": "system", "content": system_prompt}]
+    print(f"[DH] message_history: {message_history}")
     if message_history:
-        messages.extend(message_history)
+        messages.extend(message_history[:5])
     messages.append({"role": "user", "content": message})
     
     response = await execute_conversation_with_tools(
