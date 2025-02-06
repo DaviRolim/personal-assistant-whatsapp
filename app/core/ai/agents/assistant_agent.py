@@ -1,4 +1,3 @@
-import asyncio
 from openai import OpenAI
 import os
 

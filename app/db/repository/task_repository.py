@@ -1,11 +1,10 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from app.models.task import Task
 from .base_repository import BaseRepository
-
+from sqlalchemy.ext.asyncio import AsyncSession
 class TaskRepository(BaseRepository[Task]):
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         super().__init__(Task, db)
     
     async def get_by_project(self, project_id: int):

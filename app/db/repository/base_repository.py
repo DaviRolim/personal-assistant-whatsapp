@@ -1,11 +1,12 @@
 from typing import Generic, TypeVar, Type, List, Optional, Any
-from sqlalchemy.orm import Session
 from sqlalchemy import select, update, delete
+from sqlalchemy.ext.asyncio import AsyncSession
+from ..models.base import BaseModel
 
-ModelType = TypeVar("ModelType")
+ModelType = TypeVar("ModelType", bound=BaseModel)
 
 class BaseRepository(Generic[ModelType]):
-    def __init__(self, model: Type[ModelType], db: Session):
+    def __init__(self, model: Type[ModelType], db: AsyncSession):
         self.model = model
         self.db = db
 
@@ -26,7 +27,7 @@ class BaseRepository(Generic[ModelType]):
         if where:
             query = query.where(*where)
         result = await self.db.execute(query)
-        return result.scalars().all()
+        return list(result.scalars().all())
 
     async def update(self, id: Any, obj_in: dict) -> Optional[ModelType]:
         query = update(self.model).where(self.model.id == id).values(**obj_in)

@@ -1,15 +1,19 @@
-import asyncio
-from datetime import datetime
-from openai import OpenAI
-import os
 import json
+import os
+from datetime import datetime
+from typing import List, Optional
+
 from dotenv import load_dotenv
+from openai import OpenAI
+from openai.types.chat import (ChatCompletionMessageParam,
+                               ChatCompletionToolParam)
+
 from app.core.ai.tools.common import execute_conversation_with_tools
-from app.core.ai.tools.sql_tool import query, insert, get_schema_info, update
+from app.core.ai.tools.sql_tool import get_schema_info
 
 load_dotenv()
 
-tools = [
+tools: List[ChatCompletionToolParam] = [
     {
         "type": "function",
         "function": {
@@ -79,7 +83,7 @@ tools = [
     }
 ]
 
-async def agent_response(message, message_history=None):
+async def agent_response(message: str, message_history: Optional[List[ChatCompletionMessageParam]] = None):
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     schema_info = get_schema_info()
     
@@ -111,10 +115,10 @@ async def agent_response(message, message_history=None):
     - the message will be used as a reply on a chat application, so organize it well and make it conversational
     """
     
-    messages = [{"role": "system", "content": system_prompt}]
+    messages: List[ChatCompletionMessageParam] = [{"role": "system", "content": system_prompt}]
     print(f"[DH] message_history: {message_history}")
     if message_history:
-        messages.extend(message_history[:5])
+        messages.extend(message_history[:5]) # TODO this should be configurable
     messages.append({"role": "user", "content": message})
     
     response = await execute_conversation_with_tools(

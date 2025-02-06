@@ -1,20 +1,27 @@
-from typing import List, Dict
-from sqlalchemy.orm import Session
+from typing import List, Literal, Optional, cast
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.ai.memory.base import BaseMemory
 from app.db.repository.chat_history_repository import ChatHistoryRepository
 from app.models.chat_history import ChatHistory
+from openai.types.chat import (
+    ChatCompletionMessageParam,
+)
 
 class RemoteMemory(BaseMemory):
-    def __init__(self, db: Session, session_id: str):
+    def __init__(self, db: AsyncSession, session_id: str):
         self.repository = ChatHistoryRepository(db)
         self.session_id = session_id
 
-    async def get_messages(self) -> List[Dict]:
-        messages = await self.repository.get_all(where=[ChatHistory.session_id == self.session_id])
-        return [message.message for message in messages]
+    def _to_chat_completion_message(self, message: ChatHistory) -> ChatCompletionMessageParam:
+        msg_dict = message.message
+        return cast(ChatCompletionMessageParam, msg_dict)
 
-    async def add_message(self, role: str, content: str) -> None:
+    async def get_messages(self) -> Optional[List[ChatCompletionMessageParam]]:
+        messages = await self.repository.get_all(where=[ChatHistory.session_id == self.session_id])
+        return [self._to_chat_completion_message(message) for message in messages]
+
+    async def add_message(self, role: Literal["user", "assistant"], content: str) -> None:
         message = {"role": role, "content": content}
         await self.repository.create(
             {

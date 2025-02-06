@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, Literal
 from decimal import Decimal
-from pydantic import BaseModel, Field
+from pydantic import Field
 from .base import BaseSchema
 
 LogType = Literal['task_update', 'goal_progress', 'media_upload', 'activity', 'focus_session']

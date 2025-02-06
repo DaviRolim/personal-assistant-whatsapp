@@ -1,23 +1,20 @@
-from fastapi import FastAPI, Request, Depends, HTTPException
-from app.core.ai.tools.sql_tool import insert
-from app.services.ai_companion_service import AICompanionService
-from app.db.database import engine, Base
 import uvicorn
+from fastapi import Depends, FastAPI, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from app import models, schemas
-from app.db.database import get_db
-from app.core.ai.agents.assistant_agent_v2 import agent_response
+
+from app.db.database import Base, engine, get_db
+from app.services.ai_companion_service import AICompanionService
 
 app = FastAPI()
-ai_companion_service = AICompanionService(memory_type="remote")
+ai_companion_service = AICompanionService(memory_type="local")
 
 @app.on_event("startup")
 async def init_db():
-    print(f'Connecting to database...')
+    print('Connecting to database...')
     async with engine.begin() as conn:
-        print(f'Creating tables...')
+        print('Creating tables...')
         await conn.run_sync(Base.metadata.create_all)
-        print(f'Tables created!')
+        print('Tables created!')
 
 @app.get("/")
 def read_root():

@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, Dict
-from pydantic import BaseModel, Field
+from pydantic import Field
 from .base import BaseSchema
 
 class AIInteractionBase(BaseSchema):

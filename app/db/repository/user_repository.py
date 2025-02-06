@@ -1,11 +1,11 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from app.models.user import User
 from .base_repository import BaseRepository
+from sqlalchemy.ext.asyncio import AsyncSession
 
 class UserRepository(BaseRepository[User]):
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         super().__init__(User, db)
     
     async def get_by_whatsapp(self, whatsapp_number: str) -> User:

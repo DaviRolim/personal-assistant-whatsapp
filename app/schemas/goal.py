@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional, Literal
 from decimal import Decimal
-from pydantic import BaseModel
 from .base import BaseSchema
 
 GoalType = Literal['fitness', 'learning', 'project', 'habit', 'personal']

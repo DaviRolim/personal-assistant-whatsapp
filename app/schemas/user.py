@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Optional, Dict
-from pydantic import BaseModel
 from .base import BaseSchema
 
 class UserBase(BaseSchema):

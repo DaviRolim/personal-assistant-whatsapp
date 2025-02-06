@@ -1,15 +1,21 @@
-import asyncio
 from openai import OpenAI
-import os
-from typing import List, Dict, Any
-from openai import OpenAI
+from typing import List, Literal, TypedDict
+
+from openai.types.chat import (
+    ChatCompletion,
+    ChatCompletionMessageParam,
+    ChatCompletionToolParam,
+    ChatCompletionToolMessageParam,
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionMessageToolCallParam,
+)
+from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall
 from dotenv import load_dotenv
 
 import json
 
 from app.core.ai.tools.sql_tool import insert, query, update
 from app.core.ai.tools.todoist_tool import create_task
-from app.core.ai.tools.whatsapp_tool import send_message
 load_dotenv()
 
 function_map = {
@@ -47,7 +53,15 @@ tools = [
     }
 ]
 
-async def handle_tool_calls(tool_calls: List[Dict], messages: List[Dict]) -> List[Dict]:
+class ToolMessage(TypedDict):
+    role: Literal["tool"]
+    content: str
+    tool_call_id: str
+
+async def handle_tool_calls(
+    tool_calls: List[ChatCompletionMessageToolCall], 
+    messages: List[ChatCompletionMessageParam]
+) -> List[ChatCompletionMessageParam]:
     """Handle multiple tool calls and return updated messages."""
     for tool_call in tool_calls:
         function_name = tool_call.function.name
@@ -55,9 +69,8 @@ async def handle_tool_calls(tool_calls: List[Dict], messages: List[Dict]) -> Lis
         
         try:
             if function_name in function_map:
-                # Add await here since the functions are now async
                 result = await function_map[function_name](**function_args)
-                function_result_message = {
+                function_result_message: ChatCompletionToolMessageParam = {
                     "role": "tool",
                     "content": json.dumps(result),
                     "tool_call_id": tool_call.id,
@@ -67,31 +80,49 @@ async def handle_tool_calls(tool_calls: List[Dict], messages: List[Dict]) -> Lis
                 raise ValueError(f"Function '{function_name}' not found")
         except Exception as e:
             error_message = f"Error executing {function_name}: {str(e)}"
-            messages.append({
+            error_result_message: ChatCompletionToolMessageParam = {
                 "role": "tool",
                 "content": json.dumps({"error": error_message}),
                 "tool_call_id": tool_call.id,
-            })
+            }
+            messages.append(error_result_message)
     
     return messages
 
 async def execute_conversation_with_tools(
     client: OpenAI,
-    messages: List[Dict],
-    tools: List[Dict],
+    messages: List[ChatCompletionMessageParam],
+    tools: List[ChatCompletionToolParam],
     model: str = "o3-mini"
-) -> Dict[str, Any]:
+) -> ChatCompletion:
     """Execute a conversation with tool calling capabilities."""
     response = client.chat.completions.create(
         model=model,
         messages=messages,
         tools=tools,
-        tool_choice="auto",  # Add explicit tool choice
-        # reasoning_effort='high'
+        tool_choice="auto",
     )
 
     choice = response.choices[0]
-    messages.append(choice.message)
+    assistant_message: ChatCompletionAssistantMessageParam = {
+        "role": "assistant",
+        "content": choice.message.content or "",
+    }
+    if choice.message.tool_calls:
+        # Convert tool calls to the correct parameter type
+        tool_calls_params: List[ChatCompletionMessageToolCallParam] = [
+            {
+                "id": tool_call.id,
+                "type": tool_call.type,
+                "function": {
+                    "name": tool_call.function.name,
+                    "arguments": tool_call.function.arguments
+                }
+            }
+            for tool_call in choice.message.tool_calls
+        ]
+        assistant_message["tool_calls"] = tool_calls_params
+    messages.append(assistant_message)
 
     if choice.message.tool_calls:
         print(f"Handling tool calls: {choice.message.tool_calls}")    

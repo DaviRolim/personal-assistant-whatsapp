@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Optional, Literal
-from pydantic import BaseModel
 from .base import BaseSchema
 
 ProjectStatus = Literal['planning', 'active', 'paused', 'completed', 'abandoned']
