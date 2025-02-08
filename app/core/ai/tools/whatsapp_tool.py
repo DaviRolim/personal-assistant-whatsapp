@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict, Optional
 
 import requests
@@ -13,7 +14,7 @@ def send_message(
     Send a WhatsApp message using the API.
     Returns True if successful, False otherwise.
     """
-    url = "http://api:8080/message/sendText/daviwpp"
+    url = os.getenv("EVOLUTION_API_URL")
 
     # update the text to start with "🤖 *James* 🤖"
     message_prefix = "🤖 *James* 🤖 \n\n"

@@ -1,3 +1,4 @@
+import os
 from random import choice
 from typing import List
 from zoneinfo import ZoneInfo
@@ -36,13 +37,14 @@ async def run_scheduled_webhook(messages: List[str]) -> None:
         try:
             message = choice(messages)
             payload = {
-                "apikey": "35AC53D3BC28-4F9B-A25C-6B53F7BF624E",
+                "apikey": os.getenv("EVOLUTION_APIKEY"),
                 "data": {
                     "message": {
                         "conversation": message
+
                     },
                     "key": {
-                        "id": "3EB06A1CDC76D828C0193A",
+                        "id": os.getenv("EVOLUTION_KEY_ID"),
                         "remoteJid": "558399763846@s.whatsapp.net",
                         "fromMe": True
                     }
@@ -70,12 +72,6 @@ def start_scheduler() -> AsyncIOScheduler:
         CronTrigger(hour=10, minute=0, timezone=sch_timezone),
         args=[ten_am_messages],
         id="webhook_10am"
-    )
-    scheduler.add_job(
-        run_scheduled_webhook,
-        CronTrigger(hour=11, minute=20, timezone=sch_timezone),
-        args=[ten_am_messages],
-        id="webhook_11am_20"
     )
     scheduler.add_job(
         run_scheduled_webhook,
