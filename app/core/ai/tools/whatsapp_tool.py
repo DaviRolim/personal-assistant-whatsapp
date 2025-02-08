@@ -1,5 +1,7 @@
+from typing import Any, Dict, Optional
+
 import requests
-from typing import Dict, Any, Optional
+
 
 def send_message(
     number: str,
@@ -11,8 +13,11 @@ def send_message(
     Send a WhatsApp message using the API.
     Returns True if successful, False otherwise.
     """
-    url = f"http://api:8080/message/sendText/daviwpp"
-    
+    url = "http://api:8080/message/sendText/daviwpp"
+
+    # update the text to start with "🤖 *James* 🤖"
+    message_prefix = "🤖 *James* 🤖 \n\n"
+    text = f"{message_prefix}{text}"
     payload = {
         "number": number,
         "text": text

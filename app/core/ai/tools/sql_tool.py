@@ -1,9 +1,12 @@
-from datetime import datetime
-import re
 import json
-from sqlalchemy import text, DateTime, JSON
+import re
+from datetime import datetime
+
+from sqlalchemy import JSON, DateTime, text
 from sqlalchemy.exc import SQLAlchemyError
-from app.db.database import get_db, Base
+
+from app.db.database import Base, get_db
+
 
 def _extract_table_name(sql_statement: str, operation: str):
     patterns = {
@@ -110,8 +113,22 @@ def get_schema_info():
     for table_name, table in Base.metadata.tables.items():
         schema_info[table_name] = {
             "columns": [
-                {"name": col.name, "type": str(col.type), "nullable": col.nullable}
+                {
+                    "name": col.name,
+                    "type": str(col.type),
+                    "nullable": col.nullable
+                }
                 for col in table.columns
+            ],
+            "constraints": [
+                {
+                    "name": constraint.name or "unnamed_constraint",
+                    "type": type(constraint).__name__,
+                    "definition": str(constraint.sqltext) if hasattr(constraint, 'sqltext') else str(constraint)
+                }
+                for constraint in table.constraints
+                if (constraint.name is None) or 
+                   (not constraint.name.startswith('pk_') and not constraint.name.startswith('fk_'))
             ]
         }
     return schema_info

@@ -1,57 +1,23 @@
-from openai import OpenAI
+import json
 from typing import List, Literal, TypedDict
 
-from openai.types.chat import (
-    ChatCompletion,
-    ChatCompletionMessageParam,
-    ChatCompletionToolParam,
-    ChatCompletionToolMessageParam,
-    ChatCompletionAssistantMessageParam,
-    ChatCompletionMessageToolCallParam,
-)
-from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall
 from dotenv import load_dotenv
+from openai import OpenAI
+from openai.types.chat import (ChatCompletion,
+                               ChatCompletionAssistantMessageParam,
+                               ChatCompletionMessageParam,
+                               ChatCompletionMessageToolCallParam,
+                               ChatCompletionToolMessageParam,
+                               ChatCompletionToolParam)
+from openai.types.chat.chat_completion_message_tool_call import \
+    ChatCompletionMessageToolCall
 
-import json
-
+from app.core.ai.tools.perplexity_tool import web_search
 from app.core.ai.tools.sql_tool import insert, query, update
 from app.core.ai.tools.todoist_tool import create_task
+
 load_dotenv()
 
-function_map = {
-    "create_task": create_task,
-    "execute_insert": insert,
-    "execute_update": update,
-    "execute_query": query,
-}
-
-tools = [
-    {
-        "type": "function",
-        "function": {
-            "name": "create_task",
-            "description": "Creates a new task in Todoist with the specified content, due date, and priority.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "content": {
-                        "type": "string",
-                        "description": "The content of the task to create.",
-                    },
-                    "due_string": {
-                        "type": "string",
-                        "description": "The due date of the task in natural language (e.g., 'tomorrow at 2pm').",
-                    },
-                    "priority": {
-                        "type": "number",
-                        "description": "The priority of the task (1-4, with 1 being the highest).",
-                    },
-                },
-                "required": ["content", "due_string", "priority"],
-            },
-        },
-    }
-]
 
 class ToolMessage(TypedDict):
     role: Literal["tool"]
@@ -130,3 +96,153 @@ async def execute_conversation_with_tools(
         return await execute_conversation_with_tools(client, messages, tools, model)
     
     return response
+
+    
+function_map = {
+    "create_task_on_todoist": create_task,
+    "execute_insert": insert,
+    "execute_update": update,
+    "execute_query": query,
+    "web_search": web_search,
+}
+
+tools: List[ChatCompletionToolParam] = [
+    {
+        "type": "function",
+        "function": {
+            "name": "execute_query",
+            "description": "Execute a SQL SELECT query and return results",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query_string": {
+                        "type": "string",
+                        "description": "The SQL query to execute"
+                    }
+                },
+                "required": ["query_string"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "execute_insert",
+            "description": "Execute a SQL INSERT statement with parameterized values",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "insert_statement": {
+                        "type": "string",
+                        "description": "The INSERT statement with named parameters (e.g., :param_name)"
+                    },
+                    "values": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "description": "Dictionary of parameter names and their values"
+                        },
+                        "description": "List containing a single dictionary of parameter names and their values"
+                    }
+                },
+                "required": ["insert_statement", "values"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "execute_update",
+            "description": "Execute a SQL UPDATE statement with parameterized values",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "update_statement": {
+                        "type": "string",
+                        "description": "The UPDATE statement with named parameters (e.g., :param_name)"
+                    },
+                    "values": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "description": "Dictionary of parameter names and their values"
+                        },
+                        "description": "List containing a single dictionary of parameter names and their values"
+                    }
+                },
+                "required": ["update_statement", "values"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": "Perform a web search using Perplexity AI to get up-to-date information from the internet",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query to look up"
+                    },
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximum number of results to return (default: 3)",
+                        "minimum": 1,
+                        "maximum": 10
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_task_on_todoist",
+            "description": "Creates a new task in Todoist with the specified content, due date, and priority.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "string",
+                        "description": "The content of the task to create.",
+                    },
+                    "due_string": {
+                        "type": "string",
+                        "description": "The due date of the task in natural language (e.g., 'tomorrow at 2pm').",
+                    },
+                    "priority": {
+                        "type": "number",
+                        "description": "The priority of the task (1-4, with 1 being the highest).",
+                    },
+                },
+                "required": ["content", "due_string", "priority"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "web_search",
+            "description": "Perform a web search using Perplexity AI to get up-to-date information from the internet",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query to look up"
+                    },
+                    "max_results": {
+                        "type": "integer",
+                        "description": "Maximum number of results to return (default: 3)",
+                        "minimum": 1,
+                        "maximum": 10
+                    }
+                },
+                "required": ["query"]
+            }
+        }
+    }
+]
