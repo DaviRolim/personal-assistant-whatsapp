@@ -8,7 +8,7 @@ WORKDIR /app
 ENV DOCKER_CONTAINER=1
 
 # Install UV and other necessary dependencies
-RUN pip install --no-cache-dir hatchling uv uvicorn fastapi openai pydantic[email] requests python-dotenv todoist-api-python logging sqlalchemy alembic asyncpg pydantic-settings
+RUN pip install --no-cache-dir hatchling uv uvicorn fastapi openai pydantic[email] requests python-dotenv todoist-api-python logging sqlalchemy alembic asyncpg pydantic-settings apscheduler
 
 # Copy dependency files
 COPY pyproject.toml ./

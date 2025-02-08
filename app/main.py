@@ -2,11 +2,10 @@ import uvicorn
 from fastapi import Depends, FastAPI, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.ai_companion_instance import ai_companion_service
 from app.db.database import Base, engine, get_db
-from app.services.ai_companion_service import AICompanionService
 
 app = FastAPI()
-ai_companion_service = AICompanionService(memory_type="local")
 
 @app.on_event("startup")
 async def init_db():
@@ -15,6 +14,26 @@ async def init_db():
         print('Creating tables...')
         await conn.run_sync(Base.metadata.create_all)
         print('Tables created!')
+
+@app.on_event("startup")
+async def start_scheduler_event():
+    try:
+        from app.scheduler import start_scheduler
+        scheduler = start_scheduler()
+        app.state.scheduler = scheduler
+        print("Scheduler started successfully.")
+    except Exception as e:
+        print(f"Failed to start scheduler: {str(e)}")
+
+@app.on_event("shutdown")
+async def shutdown_scheduler_event():
+    try:
+        if hasattr(app.state, 'scheduler'):
+            scheduler = app.state.scheduler
+            scheduler.shutdown()
+            print("Scheduler shutdown successfully.")
+    except Exception as e:
+        print(f"Error during scheduler shutdown: {str(e)}")
 
 @app.get("/")
 def read_root():

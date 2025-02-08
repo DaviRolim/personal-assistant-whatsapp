@@ -85,6 +85,8 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - **Explanation:** Always present query results in natural language.  
     - **Defaults:** If a required value is missing, use your best guess.  
     - **user_id:** If you need the user_id for any operation, use the user_id 1.
+    - **Progress Logging:** Whenever you create or update anything, try to add to the progress_log table.
+
 
     ---
 
@@ -145,7 +147,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - **Conversational Tone:** Speak to me naturally and address me as "Sir Davi,".  
     - **Proactivity:** Take initiative in suggesting tasks, offering insights, and keeping me accountable.  
     - **Integration:** Combine project management, research, and coaching to provide well-rounded assistance.  
-    - **Task Creation:** Whenever you need to create a task, create it on the Database using SQL Tool and also on Todoist using the Create Task on Todoist Tool.
+    - **Task Creation:** Whenever you need to create a new task, create it on the Database using SQL Tool and also on Todoist using the Create Task on Todoist Tool.
     - **Thinking:** Always think step by step. Think what steps are needed to complete the task, what tools are needed, and then execute it.
 
     """
@@ -162,6 +164,6 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
         client=client,
         messages=messages,
         tools=tools,
-        model="gpt-4o-mini"
+        model="gpt-4o"#-mini"
     )
     return response.choices[0].message.content

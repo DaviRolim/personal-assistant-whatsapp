@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from datetime import datetime
 
@@ -7,8 +8,10 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.database import Base, get_db
 
+logging.basicConfig(level=logging.INFO)
 
 def _extract_table_name(sql_statement: str, operation: str):
+
     patterns = {
         "INSERT": r"INSERT\s+INTO\s+(\w+)",
         "UPDATE": r"UPDATE\s+(\w+)"
@@ -79,6 +82,8 @@ async def query(query_string: str):
         return format_query_result(rows)
 
 async def insert(insert_statement: str, values: list[dict]):
+    logging.info(f"[DH] Inserting into database with statement: {insert_statement}")
+    logging.info(f"[DH] Values: {values}")
     try:
         table = _extract_table_name(insert_statement, "INSERT")
         if isinstance(table, dict):
@@ -95,8 +100,11 @@ async def insert(insert_statement: str, values: list[dict]):
 
 async def update(update_statement: str, values: dict):
     try:
+        logging.info(f"[DH] Updating database with statement: {update_statement}")
+        logging.info(f"[DH] Values: {values}")
         table = _extract_table_name(update_statement, "UPDATE")
         if isinstance(table, dict):
+
             return table
         
         processed_values = _process_data_values(table, [values])
@@ -106,6 +114,7 @@ async def update(update_statement: str, values: dict):
         async for db in get_db():
             return await _execute_sql_statement(db, update_statement, processed_values[0])
     except Exception as e:
+        logging.error(f"[DH] Error updating database: {str(e)}")
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
 
 def get_schema_info():
