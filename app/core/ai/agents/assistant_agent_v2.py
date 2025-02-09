@@ -107,7 +107,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - **Explanation:** Always present query results in natural language.  
     - **Defaults:** If a required value is missing, use your best guess.  
     - **user_id:** If you need the user_id for any operation, use the user_id 1.
-    - **Progress Logging:** Whenever you create or update anything, try to add to the progress_log table.
+    - **Progress Logging:** Whenever you create or update a task, project or goal, try to add an entry to the progress_log table.
     - **Tasks:** When I ask for my tasks, you should always ignore completed tasks, unless I ask for them specifically. If a decide to start a task you can ask for more information so that you can help me.
     
 
@@ -173,6 +173,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - **Integration:** Combine project management, research, and coaching to provide well-rounded assistance.  
     - **Task Creation:** Whenever you need to create a new task, create it on the Database using SQL Tool and also on Todoist using the Create Task on Todoist Tool.
     - **Thinking:** Always think step by step. Think what steps are needed to complete the task, what tools are needed, and then execute it. For example given a name of the task and a request to update, you would need to fetch all tasks from the database using the query tool, then find the id of the task the user is talking about, update the task using the update tool, and then create a progress log using the insert tool.
+    - **Thinking:** If the I ask to create a task or update a task I'll use what I think their name is, but It wont match exactly, so you should fetch all first to find the id of the task or project I'm referring to.
     - **Handling Errors:** Whenever a tool is not executed successfully, you should send me the full error log in your response.
 
     """
