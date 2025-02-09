@@ -12,7 +12,12 @@ if not db_url:
     raise ValueError("DB_URL environment variable is not set")
 
 print(f'[DH] DB_URL: {db_url}')
-engine = create_async_engine(db_url, future=True, pool_pre_ping=True)
+engine = create_async_engine(
+    db_url,
+    future=True,
+    pool_pre_ping=True,
+    connect_args={"statement_cache_size": 0}  # Disable statement caching for pgbouncer compatibility
+)
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 Base = declarative_base()
