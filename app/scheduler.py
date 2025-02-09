@@ -12,23 +12,28 @@ from app.db.database import get_db
 # Message lists for each scheduled time
 five_am_messages: List[str] = [
     "Good morning, check my projects and tasks and suggest something for me to start the day accomplishing something",
-    "Hi, ask me my energy level or free time and based on the information, suggest a task or an activity"
+    "Hi, ask me my energy level or free time and based on the information, suggest a task or an activity",
+    "Check my projects and tasks and suggest something for me to start the day accomplishing something",
+    "Check my tasks that are in_progress for a long time and there's no recent progress log and suggest something to do"
 ]
 
 ten_am_messages: List[str] = [
     "It's 10 AM, review my schedule and provide any quick tasks to boost my productivity",
-    "Good morning, remind me of any urgent work that may require immediate attention"
+    "Good morning, ask me what I'm doing and if I'm doing something that is not aligned with my priorities, persuade me to do something more productive"
 ]
+
 
 two_pm_messages: List[str] = [
     "It's 2 PM, any mid-day adjustments or tasks you recommend?",
-    "Afternoon check: suggest a task to re-energize or refocus me"
+    "Good afternoon, ask me what I'm doing and if I'm doing something that is not aligned with my priorities, persuade me to do something more productive"
 ]
+
 
 four_pm_messages: List[str] = [
     "At 4 PM, summarize my progress and provide suggestions for wrapping up the day",
-    "It's nearly the end of the workday; suggest priority tasks to finish remaining activities"
+    "Good afternoon, ask me what I'm doing and if I'm doing something that is not aligned with my priorities, persuade me to do something more productive"
 ]
+
 
 
 async def run_scheduled_webhook(messages: List[str]) -> None:

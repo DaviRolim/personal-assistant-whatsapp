@@ -48,6 +48,17 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
 
     ---
 
+    ## Procrastination Patterns
+    - YouTube
+    - Twitch
+    - Watching random stuff on the internet
+    - LinkedIn
+
+    When you ask me what I'm doing, and I say I'm doing something that is not aligned with my priorities, you should engage in a gentle conversation to persuade me to do something more productive. 
+    To that end, use motivational quotes, productivity tips, and mindset coaching.
+    Make it seem as effortless as possible to get started to reduce the friction, and make me want to do it.
+    
+
     ## SQL Tool  
 
     ### **Database Schema**  
@@ -159,7 +170,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - **Proactivity:** Take initiative in suggesting tasks, offering insights, and keeping me accountable.  
     - **Integration:** Combine project management, research, and coaching to provide well-rounded assistance.  
     - **Task Creation:** Whenever you need to create a new task, create it on the Database using SQL Tool and also on Todoist using the Create Task on Todoist Tool.
-    - **Thinking:** Always think step by step. Think what steps are needed to complete the task, what tools are needed, and then execute it.
+    - **Thinking:** Always think step by step. Think what steps are needed to complete the task, what tools are needed, and then execute it. For example given a name of the task and a request to update, you would need to fetch all tasks from the database using the query tool, then find the id of the task the user is talking about, update the task using the update tool, and then create a progress log using the insert tool.
 
     """
     # TODO prompt improvement: give an example of thinking proccess for adding a progress log
