@@ -1,3 +1,5 @@
+import logging
+
 import uvicorn
 from fastapi import Depends, FastAPI, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -5,6 +7,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.ai_companion_instance import ai_companion_service
 from app.db.database import Base, engine, get_db
 
+# Configure root logger
+
+logging.basicConfig(
+    level=logging.DEBUG,  # Capture all log levels
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("app.log"),  # Save all logs to a file
+        logging.StreamHandler()  # Print logs to console
+    ]
+)
 app = FastAPI()
 
 @app.on_event("startup")
@@ -65,4 +77,5 @@ async def trials(request: Request, db: AsyncSession = Depends(get_db)):
 #     return {"status": "Message history cleared"}
 
 def run():
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

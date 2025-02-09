@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.database import Base, get_db
 
+logger = logging.getLogger(__name__)
 
 def _extract_table_name(sql_statement: str, operation: str):
 
@@ -55,7 +56,7 @@ async def _execute_sql_statement(db, sql_statement, parameters):
         await db.commit()
         return {"success": True, "message": "Operation completed successfully"}
     except SQLAlchemyError as e:
-        logging.error(f"[DH] Error executing SQL statement: {str(e)}")
+        logger.error(f"[DH] Error executing SQL statement: {str(e)}")
         await db.rollback()
         return {"success": False, "message": f"Database error: {str(e)}"}
 
@@ -83,8 +84,8 @@ async def query(query_string: str):
         return format_query_result(rows)
 
 async def insert(insert_statement: str, values: list[dict]):
-    logging.info(f"[DH] Inserting into database with statement: {insert_statement}")
-    logging.info(f"[DH] Values: {values}")
+    logger.info(f"[DH] Inserting into database with statement: {insert_statement}")
+    logger.info(f"[DH] Values: {values}")
     try:
         table = _extract_table_name(insert_statement, "INSERT")
         if isinstance(table, dict):
@@ -101,8 +102,8 @@ async def insert(insert_statement: str, values: list[dict]):
 
 async def update(update_statement: str, values: dict):
     try:
-        logging.info(f"[DH] Updating database with statement: {update_statement}")
-        logging.info(f"[DH] Values: {values}")
+        logger.info(f"[DH] Updating database with statement: {update_statement}")
+        logger.info(f"[DH] Values: {values}")
         table = _extract_table_name(update_statement, "UPDATE")
         if isinstance(table, dict):
 
@@ -115,13 +116,13 @@ async def update(update_statement: str, values: dict):
         async for db in get_db():
             return await _execute_sql_statement(db, update_statement, processed_values[0])
     except Exception as e:
-        logging.error(f"[DH] Error updating database: {str(e)}")
+        logger.error(f"[DH] Error updating database: {str(e)}")
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
 
 async def delete(delete_statement: str, values: dict):
     try:
-        logging.info(f"[DH] Deleting from database with statement: {delete_statement}")
-        logging.info(f"[DH] Values: {values}")
+        logger.info(f"[DH] Deleting from database with statement: {delete_statement}")
+        logger.info(f"[DH] Values: {values}")
         table = _extract_table_name(delete_statement, "DELETE")
         if isinstance(table, dict):
             return table
@@ -133,7 +134,7 @@ async def delete(delete_statement: str, values: dict):
         async for db in get_db():
             return await _execute_sql_statement(db, delete_statement, processed_values[0])
     except Exception as e:
-        logging.error(f"[DH] Error deleting from database: {str(e)}")
+        logger.error(f"[DH] Error deleting from database: {str(e)}")
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
 
 def get_schema_info():

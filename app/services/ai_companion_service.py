@@ -1,12 +1,12 @@
+import logging
 from typing import Optional
 
-from app.core.ai.agents.assistant_agent_v2 import agent_response
-from app.core.ai.tools.whatsapp_tool import send_message
-from app.core.ai.memory.base import BaseMemory
 from sqlalchemy.ext.asyncio import AsyncSession
-import logging
 
-logging.basicConfig(level=logging.DEBUG)
+from app.core.ai.agents.assistant_agent_v2 import agent_response
+from app.core.ai.memory.base import BaseMemory
+from app.core.ai.tools.whatsapp_tool import send_message
+
 logger = logging.getLogger(__name__)
 
 class AICompanionService:
@@ -32,7 +32,7 @@ class AICompanionService:
         logger.debug(f'[DH] data: {data}')
         
         if not self._is_valid_message(key):
-            logging.debug("Message ignored")
+            logger.debug("Message ignored")
             return {"message": "Message ignored"}
 
         message_sent = await self._process_message(
@@ -58,11 +58,11 @@ class AICompanionService:
                 
         quoted = {"key": key, "message": message}
         user_message = message.get('conversation', '')
-        logging.debug(f'[DH] user_message: {user_message}')
+        logger.debug(f'[DH] user_message: {user_message}')
 
         await self.memory.add_message(role="user", content=user_message)
         response = await agent_response(user_message, message_history=await self.memory.get_messages())
-        logging.debug(f'[DH] response: {response}')
+        logger.debug(f'[DH] response: {response}')
 
         if response is None:
             return False
