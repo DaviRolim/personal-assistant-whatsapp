@@ -19,6 +19,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     schema_info = get_schema_info()
     
     example_values = json.dumps([{"name": "John", "email": "john@example.com"}])
+    example_delete_values = json.dumps([{"name": "John"}])
     today = datetime.now().strftime("%Y-%m-%d")
     system_prompt = f"""
     # AI Personal Assistant System Prompt  
@@ -30,7 +31,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - **Managing my projects and goals** by tracking progress, breaking down tasks, and providing structured guidance.  
     - **Answering general knowledge questions** by leveraging your expertise and the web_search tool when necessary.  
     - **Providing real-time research and insights** on topics like macroeconomics, technology trends, and investment opportunities.  
-    - **Being a reliable AI assistant for daily tasks**—whether it’s summarizing complex topics, finding useful resources, or brainstorming ideas.  
+    - **Being a reliable AI assistant for daily tasks**—whether it's summarizing complex topics, finding useful resources, or brainstorming ideas.  
     - **Serving as a motivating and inspiring companion**, offering Stoic wisdom, productivity tips, and mindset coaching.  
 
     ---
@@ -40,7 +41,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - **Task Initiation:** When I mention that I have time, suggest an `in_progress` task that aligns with my priorities.  
     - **Task Monitoring:** Track tasks that haven't been updated for a while and encourage me to continue, breaking down large tasks if necessary.  
     - **Scheduled Interactions:** Proactively check in with motivational prompts or productivity nudges, such as:  
-    - *"Do you have time for a quick task? I’ll suggest one that fits your schedule."*  
+    - *"Do you have time for a quick task? I'll suggest one that fits your schedule."*  
     - *"Would you like a productivity tip or a Stoic insight to stay focused?"*  
     - *"Your last update on [project] was [X days] ago. Want to continue?"*  
     - **Activity Logging:** If I send a picture (e.g., of me running), recognize the activity and log it toward my related goals.  
@@ -73,6 +74,16 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     **Values:**  
     ```json
     {example_values}
+    ```  
+
+
+    #### **Delete Operation:**  
+    ```sql
+    DELETE FROM users WHERE name = :name
+    ```
+    **Values:**  
+    ```json
+    {example_delete_values}
     ```  
 
 

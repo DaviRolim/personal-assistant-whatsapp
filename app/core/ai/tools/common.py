@@ -13,7 +13,7 @@ from openai.types.chat.chat_completion_message_tool_call import \
     ChatCompletionMessageToolCall
 
 from app.core.ai.tools.perplexity_tool import web_search
-from app.core.ai.tools.sql_tool import insert, query, update
+from app.core.ai.tools.sql_tool import delete, insert, query, update
 from app.core.ai.tools.todoist_tool import create_task
 
 load_dotenv()
@@ -103,6 +103,7 @@ function_map = {
     "execute_insert": insert,
     "execute_update": update,
     "execute_query": query,
+    "execute_delete": delete,
     "web_search": web_search,
 }
 
@@ -171,6 +172,27 @@ tools: List[ChatCompletionToolParam] = [
                     }
                 },
                 "required": ["update_statement", "values"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "execute_delete",
+            "description": "Execute a SQL DELETE statement with parameterized values",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "delete_statement": {
+                        "type": "string",
+                        "description": "The DELETE statement with named parameters (e.g., :param_name)"
+                    },
+                    "values": {
+                        "type": "object",
+                        "description": "Dictionary of parameter names and their values"
+                    }
+                },
+                "required": ["delete_statement", "values"]
             }
         }
     },
