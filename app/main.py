@@ -13,9 +13,10 @@ logging.basicConfig(
     level=logging.DEBUG,  # Capture all log levels
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("app.log"),  # Save all logs to a file
+        logging.FileHandler("./logs/app.log"),  # Save all logs to a file
         logging.StreamHandler()  # Print logs to console
     ]
+
 )
 app = FastAPI()
 
