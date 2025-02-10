@@ -55,7 +55,7 @@ class AICompanionService:
                 key=key,
                 message=data.get('message', {}),
                 api_key=body.get('apikey', {}),
-                db=db 
+                db=db
             )
 
             return {"message": f'message_sent: {message_sent}'}

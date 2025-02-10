@@ -38,27 +38,26 @@ four_pm_messages: List[str] = [
 
 async def run_scheduled_webhook(messages: List[str]) -> None:
     """Execute the webhook task for a randomly selected message from the list."""
-    async with get_db() as db:
-        try:
-            message = choice(messages)
+    try:
+        message = choice(messages)
 
-            payload = {
-                "apikey": os.getenv("EVOLUTION_APIKEY"),
-                "data": {
-                    "message": {
-                        "conversation": message
-
-                    },
-                    "key": {
-                        "id": os.getenv("EVOLUTION_KEY_ID"),
-                        "remoteJid": "558399763846@s.whatsapp.net",
-                        "fromMe": True
-                    }
+        payload = {
+            "apikey": os.getenv("EVOLUTION_APIKEY"),
+            "data": {
+                "message": {
+                    "conversation": message
+                },
+                "key": {
+                    "id": os.getenv("EVOLUTION_KEY_ID"),
+                    "remoteJid": "558399763846@s.whatsapp.net",
+                    "fromMe": True
                 }
             }
+        }
+        async with get_db() as db:
             await ai_companion_service.handle_webhook_data(payload, db)
-        except Exception as e:
-            print(f"Error in scheduled webhook: {str(e)}")
+    except Exception as e:
+        print(f"Error in scheduled webhook: {str(e)}")
 
 
 def start_scheduler() -> AsyncIOScheduler:

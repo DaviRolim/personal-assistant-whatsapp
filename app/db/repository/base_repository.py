@@ -1,6 +1,8 @@
-from typing import Generic, TypeVar, Type, List, Optional, Any
-from sqlalchemy import select, update, delete
+from typing import Any, Generic, List, Optional, Type, TypeVar
+
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from ..models.base import BaseModel
 
 ModelType = TypeVar("ModelType", bound=BaseModel)
@@ -22,10 +24,14 @@ class BaseRepository(Generic[ModelType]):
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
-    async def get_all(self, where=None) -> List[ModelType]:
+    async def get_all(self, where=None, limit=None, order_by=None) -> List[ModelType]:
         query = select(self.model)
         if where:
             query = query.where(*where)
+        if order_by:
+            query = query.order_by(*order_by)
+        if limit:
+            query = query.limit(limit)
         result = await self.db.execute(query)
         return list(result.scalars().all())
 
@@ -38,5 +44,7 @@ class BaseRepository(Generic[ModelType]):
     async def delete(self, id: Any) -> bool:
         query = delete(self.model).where(self.model.id == id)
         result = await self.db.execute(query)
+        await self.db.commit()
+        return result.rowcount > 0
         await self.db.commit()
         return result.rowcount > 0

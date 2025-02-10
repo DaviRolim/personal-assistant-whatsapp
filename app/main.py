@@ -1,8 +1,7 @@
 import logging
 
 import uvicorn
-from fastapi import Depends, FastAPI, Request
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import FastAPI, Request
 
 from app.core.ai_companion_instance import ai_companion_service
 from app.db.database import Base, engine, get_db
@@ -57,16 +56,18 @@ def read_root():
     return {"message": "Welcome to the FastAPI application!"}
 
 @app.post("/webhook")
-async def webhook(request: Request, db: AsyncSession = Depends(get_db)):
+async def webhook(request: Request):
     body = await request.json()
     print(f'Webhook received: {body}')
-    return await ai_companion_service.handle_webhook_data(body, db)
+    async with get_db() as db:
+        return await ai_companion_service.handle_webhook_data(body, db)
 
 @app.post("/trials")
-async def trials(request: Request, db: AsyncSession = Depends(get_db)):
+async def trials(request: Request):
     body = await request.json()
     print(f'body: {body}')
-    return await ai_companion_service.handle_webhook_data(body, db)
+    async with get_db() as db:
+        return await ai_companion_service.handle_webhook_data(body, db)
 
     # add_message("user", body['message'])
     # sql_agent_response = await agent_response(body['message'], get_messages())
