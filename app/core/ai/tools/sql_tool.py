@@ -78,7 +78,7 @@ def format_query_result(result) -> str:
     return "\n".join(formatted_rows)
 
 async def query(query_string: str):
-    async for db in get_db():
+    async with get_db() as db:
         result = await db.execute(text(query_string))
         rows = result.mappings().all()
         return format_query_result(rows)
@@ -95,7 +95,7 @@ async def insert(insert_statement: str, values: list[dict]):
         if isinstance(processed_values, dict):
             return processed_values
         
-        async for db in get_db():
+        async with get_db() as db:
             return await _execute_sql_statement(db, insert_statement, processed_values)
     except Exception as e:
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
@@ -113,7 +113,7 @@ async def update(update_statement: str, values: dict):
         if isinstance(processed_values, dict):
             return processed_values
         
-        async for db in get_db():
+        async with get_db() as db:
             return await _execute_sql_statement(db, update_statement, processed_values[0])
     except Exception as e:
         logger.error(f"[DH] Error updating database: {str(e)}")
@@ -131,10 +131,11 @@ async def delete(delete_statement: str, values: dict):
         if isinstance(processed_values, dict):
             return processed_values
         
-        async for db in get_db():
+        async with get_db() as db:
             return await _execute_sql_statement(db, delete_statement, processed_values[0])
     except Exception as e:
         logger.error(f"[DH] Error deleting from database: {str(e)}")
+
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
 
 def get_schema_info():

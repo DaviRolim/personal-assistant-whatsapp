@@ -38,9 +38,10 @@ four_pm_messages: List[str] = [
 
 async def run_scheduled_webhook(messages: List[str]) -> None:
     """Execute the webhook task for a randomly selected message from the list."""
-    async for db in get_db():
+    async with get_db() as db:
         try:
             message = choice(messages)
+
             payload = {
                 "apikey": os.getenv("EVOLUTION_APIKEY"),
                 "data": {
@@ -58,7 +59,6 @@ async def run_scheduled_webhook(messages: List[str]) -> None:
             await ai_companion_service.handle_webhook_data(payload, db)
         except Exception as e:
             print(f"Error in scheduled webhook: {str(e)}")
-        break  # Exit after first iteration since we only need one session
 
 
 def start_scheduler() -> AsyncIOScheduler:

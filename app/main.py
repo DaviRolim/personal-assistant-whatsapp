@@ -45,8 +45,12 @@ async def shutdown_scheduler_event():
             scheduler = app.state.scheduler
             scheduler.shutdown()
             print("Scheduler shutdown successfully.")
+        # dispose the engine
+        await engine.dispose()
+        print("Engine disposed successfully.")
     except Exception as e:
         print(f"Error during scheduler shutdown: {str(e)}")
+
 
 @app.get("/")
 def read_root():
