@@ -3,7 +3,7 @@ import logging
 import uvicorn
 from fastapi import FastAPI, Request
 
-from app.core.ai.tools.whatsapp_tool import get_base64_from_media_message
+# from app.core.ai.tools.whatsapp_tool import get_base64_from_media_message
 from app.core.ai_companion_instance import ai_companion_service
 from app.db.database import Base, engine, get_db
 
