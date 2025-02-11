@@ -80,11 +80,17 @@ class AICompanionService:
 
     async def _process_message(self, key: dict, message: dict, api_key: str, db: AsyncSession) -> bool:
         try:
-            if self.memory is None:
-                logger.info("Memory not initialized, attempting initialization")
-                await self.init_memory(db)
+            if self.memory_type == "remote":
+                from app.core.ai.memory import memory_factory
+                logger.info("Creating fresh remote memory with new db session")
+                memory_instance = memory_factory(memory_type="remote", db=db, session_id="default_session")
+            else:
                 if self.memory is None:
-                    raise RuntimeError("Failed to initialize memory after attempt")
+                    logger.info("Memory not initialized, attempting initialization")
+                    await self.init_memory(db)
+                    if self.memory is None:
+                        raise RuntimeError("Failed to initialize memory after attempt")
+                memory_instance = self.memory
 
             quoted = {"key": key, "message": message}
             user_message = message.get('conversation', '')
@@ -94,16 +100,16 @@ class AICompanionService:
                 return False
 
             logger.info(f'Processing user message: {user_message[:50]}...')
-            await self.memory.add_message(role="user", content=user_message)
+            await memory_instance.add_message(role="user", content=user_message)
 
-            response = await agent_response(user_message, message_history=await self.memory.get_messages())
+            response = await agent_response(user_message, message_history=await memory_instance.get_messages())
             
             if response is None:
                 logger.warning("No response generated from agent")
                 return False
 
             logger.info(f'Agent response generated: {response[:50]}...')
-            await self.memory.add_message(role="assistant", content=response)
+            await memory_instance.add_message(role="assistant", content=response)
             
             message_sent = send_message(
                 number=key['remoteJid'],
