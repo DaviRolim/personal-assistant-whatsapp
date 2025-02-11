@@ -16,8 +16,8 @@ def send_message(
     Returns True if successful, False otherwise.
     """
     url = f"{os.getenv('EVOLUTION_API_URL')}/message/sendText/{instance}"
-    message_prefix = r"🤖 *James*\n\n"
-    text = f"{message_prefix}{text}"
+    message_prefix = r"🤖 *James* "
+    text = f"{message_prefix}\n\n {text}"
     payload = {
         "number": number,
         "text": text
