@@ -3,6 +3,7 @@ import logging
 import uvicorn
 from fastapi import FastAPI, Request
 
+from app.core.ai.tools.whatsapp_tool import get_base64_from_media_message
 from app.core.ai_companion_instance import ai_companion_service
 from app.db.database import Base, engine, get_db
 
@@ -12,10 +13,9 @@ logging.basicConfig(
     level=logging.INFO,  # Capture all log levels
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler("./logs/app.log"),  # Save all logs to a file
+        logging.FileHandler(f"./logs/app_{logging.Formatter().formatTime(logging.LogRecord('', 0, '', 0, None, None, None), '%Y-%m-%d')}.log"),  # Daily log file
         logging.StreamHandler()  # Print logs to console
     ]
-
 )
 app = FastAPI()
 
@@ -69,13 +69,13 @@ async def trials(request: Request):
     async with get_db() as db:
         return await ai_companion_service.handle_webhook_data(body, db)
 
-    # add_message("user", body['message'])
-    # sql_agent_response = await agent_response(body['message'], get_messages())
-    # add_message("assistant", sql_agent_response)
-    # return sql_agent_response
+@app.post("/try-audio")
+async def try_audio(request: Request):
+    body = await request.json()
+    print(f'body: {body}')
+    res = await get_base64_from_media_message(body['instance'], body['data']['key']['id'], body['apikey'])
+    return {"base64": res}
 
-    # response = await insert(body['statement'], body['values'])
-    # return response
 
 # @app.get("/clear-history")
 # def clear_history():
@@ -83,5 +83,4 @@ async def trials(request: Request):
 #     return {"status": "Message history cleared"}
 
 def run():
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
