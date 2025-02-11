@@ -1,7 +1,10 @@
 from datetime import datetime
 from typing import Optional
+
 from pydantic import Field
+
 from .base import BaseSchema
+
 
 class ProcrastinationPatternBase(BaseSchema):
     trigger_type: str
@@ -10,9 +13,8 @@ class ProcrastinationPatternBase(BaseSchema):
     impact_level: Optional[int] = Field(None, ge=1, le=5)
 
 class ProcrastinationPatternCreate(ProcrastinationPatternBase):
-    user_id: int
+    pass
 
 class ProcrastinationPattern(ProcrastinationPatternBase):
     pattern_id: int
-    user_id: int
     created_at: datetime

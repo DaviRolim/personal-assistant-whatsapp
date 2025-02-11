@@ -41,6 +41,7 @@ class AICompanionService:
         try:
             data = body.get('data', {})
             key = data.get('key', {})
+            instance = body.get('instance', 'daviwpp')
             logger.info(f'Processing webhook data for remote JID: {key.get("remoteJid", "unknown")}')
             
             if not data or not key:
@@ -55,7 +56,8 @@ class AICompanionService:
                 key=key,
                 message=data.get('message', {}),
                 api_key=body.get('apikey', {}),
-                db=db
+                db=db,
+                instance=instance
             )
 
             return {"message": f'message_sent: {message_sent}'}
@@ -78,7 +80,7 @@ class AICompanionService:
             logger.error(f"Error validating message: {str(e)}", exc_info=True)
             return False
 
-    async def _process_message(self, key: dict, message: dict, api_key: str, db: AsyncSession) -> bool:
+    async def _process_message(self, key: dict, message: dict, api_key: str, db: AsyncSession, instance: str) -> bool:
         try:
             if self.memory_type == "remote":
                 from app.core.ai.memory import memory_factory
@@ -115,7 +117,8 @@ class AICompanionService:
                 number=key['remoteJid'],
                 text=response,
                 api_key=api_key,
-                quoted=quoted
+                quoted=quoted,
+                instance=instance
             )
             
             logger.info(f'Message sent successfully to {key["remoteJid"]}')

@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Optional, Literal
+from typing import Literal, Optional
+
 from .base import BaseSchema
 
 ProjectStatus = Literal['planning', 'active', 'paused', 'completed', 'abandoned']
@@ -14,10 +15,9 @@ class ProjectBase(BaseSchema):
     deadline: Optional[datetime] = None
 
 class ProjectCreate(ProjectBase):
-    user_id: int
+    pass
 
 class Project(ProjectBase):
     project_id: int
-    user_id: int
     created_at: datetime
     updated_at: datetime

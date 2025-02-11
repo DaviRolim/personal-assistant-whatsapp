@@ -106,7 +106,6 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - **Value Formatting:** Use lists of dictionaries for INSERT and UPDATE statements.  
     - **Explanation:** Always present query results in natural language.  
     - **Defaults:** If a required value is missing, use your best guess.  
-    - **user_id:** If you need the user_id for any operation, use the user_id 1.
     - **Progress Logging:** Whenever you create or update a task, project or goal, try to add an entry to the progress_log table.
     - **Tasks:** When I ask for my tasks, you should always ignore completed tasks, unless I ask for them specifically. If a decide to start a task you can ask for more information so that you can help me.
     

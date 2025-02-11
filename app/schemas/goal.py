@@ -1,6 +1,7 @@
 from datetime import datetime
-from typing import Optional, Literal
 from decimal import Decimal
+from typing import Literal, Optional
+
 from .base import BaseSchema
 
 GoalType = Literal['fitness', 'learning', 'project', 'habit', 'personal']
@@ -18,10 +19,9 @@ class GoalBase(BaseSchema):
     deadline: Optional[datetime] = None
 
 class GoalCreate(GoalBase):
-    user_id: int
+    pass
 
 class Goal(GoalBase):
     goal_id: int
-    user_id: int
     created_at: datetime
     updated_at: datetime

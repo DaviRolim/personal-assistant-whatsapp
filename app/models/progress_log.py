@@ -1,11 +1,13 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, CheckConstraint, Numeric, text
+from sqlalchemy import (CheckConstraint, Column, DateTime, ForeignKey, Integer,
+                        Numeric, String, Text, text)
+
 from app.db.database import Base
+
 
 class ProgressLog(Base):
     __tablename__ = 'progress_logs'
     
     log_id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.user_id'))
     log_type = Column(String(50), nullable=False)
     related_task_id = Column(Integer, ForeignKey('tasks.task_id'))
     related_goal_id = Column(Integer, ForeignKey('goals.goal_id'))

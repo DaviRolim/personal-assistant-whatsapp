@@ -1,11 +1,13 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, CheckConstraint, JSON, text
+from sqlalchemy import (JSON, CheckConstraint, Column, DateTime, Integer,
+                        String, Text, text)
+
 from app.db.database import Base
+
 
 class AIInteraction(Base):
     __tablename__ = 'ai_interactions'
     
     interaction_id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.user_id'))
     message_text = Column(Text, nullable=False)
     response_text = Column(Text, nullable=False)
     intent = Column(String(50))

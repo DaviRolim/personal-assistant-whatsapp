@@ -1,12 +1,13 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, CheckConstraint, Numeric, text
-from sqlalchemy.orm import relationship
+from sqlalchemy import (CheckConstraint, Column, DateTime, Integer, Numeric,
+                        String, Text, text)
+
 from app.db.database import Base
+
 
 class Goal(Base):
     __tablename__ = 'goals'
     
     goal_id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.user_id'))
     title = Column(String(200), nullable=False)
     description = Column(Text)
     goal_type = Column(String(50))
@@ -18,8 +19,6 @@ class Goal(Base):
     deadline = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=text('CURRENT_TIMESTAMP'))
     updated_at = Column(DateTime(timezone=True), server_default=text('CURRENT_TIMESTAMP'))
-    
-    user = relationship("User", back_populates="goals")
     
     __table_args__ = (
         CheckConstraint("goal_type IN ('fitness', 'learning', 'project', 'habit', 'personal')"),

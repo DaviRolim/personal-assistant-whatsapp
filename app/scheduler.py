@@ -43,6 +43,7 @@ async def run_scheduled_webhook(messages: List[str]) -> None:
 
         payload = {
             "apikey": os.getenv("EVOLUTION_APIKEY"),
+            "instance": "James",
             "data": {
                 "message": {
                     "conversation": message

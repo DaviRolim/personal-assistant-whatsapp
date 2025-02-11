@@ -1,7 +1,10 @@
 from datetime import datetime
-from typing import Optional, Dict
+from typing import Dict, Optional
+
 from pydantic import Field
+
 from .base import BaseSchema
+
 
 class AIInteractionBase(BaseSchema):
     message_text: str
@@ -11,9 +14,8 @@ class AIInteractionBase(BaseSchema):
     effectiveness_rating: Optional[int] = Field(None, ge=1, le=5)
 
 class AIInteractionCreate(AIInteractionBase):
-    user_id: int
+    pass
 
 class AIInteraction(AIInteractionBase):
     interaction_id: int
-    user_id: int
     created_at: datetime

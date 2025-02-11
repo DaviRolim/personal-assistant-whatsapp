@@ -1,7 +1,9 @@
 from datetime import datetime
-from typing import Optional, Literal
 from decimal import Decimal
+from typing import Literal, Optional
+
 from pydantic import Field
+
 from .base import BaseSchema
 
 LogType = Literal['task_update', 'goal_progress', 'media_upload', 'activity', 'focus_session']
@@ -19,9 +21,8 @@ class ProgressLogBase(BaseSchema):
     mood: Optional[str] = None
 
 class ProgressLogCreate(ProgressLogBase):
-    user_id: int
+    pass
 
 class ProgressLog(ProgressLogBase):
     log_id: int
-    user_id: int
     created_at: datetime
