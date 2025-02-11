@@ -58,7 +58,7 @@ def read_root():
 @app.post("/webhook")
 async def webhook(request: Request):
     body = await request.json()
-    print(f'Webhook received: {body}')
+    logging.info(f'Webhook received: {body}')
     async with get_db() as db:
         return await ai_companion_service.handle_webhook_data(body, db)
 
