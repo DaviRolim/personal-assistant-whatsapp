@@ -69,12 +69,12 @@ async def trials(request: Request):
     async with get_db() as db:
         return await ai_companion_service.handle_webhook_data(body, db)
 
-@app.post("/try-audio")
-async def try_audio(request: Request):
-    body = await request.json()
-    print(f'body: {body}')
-    res = await get_base64_from_media_message(body['instance'], body['data']['key']['id'], body['apikey'])
-    return {"base64": res}
+# @app.post("/try-audio")
+# async def try_audio(request: Request):
+#     body = await request.json()
+#     print(f'body: {body}')
+#     res = await get_base64_from_media_message(body['instance'], body['data']['key']['id'], body['apikey'])
+#     return {"base64": res}
 
 
 # @app.get("/clear-history")
