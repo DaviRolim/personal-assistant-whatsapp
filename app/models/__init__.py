@@ -1,14 +1,12 @@
-from .user import User
+from .ai_interaction import AIInteraction
+from .chat_history import ChatHistory
+from .goal import Goal
+from .procrastination_pattern import ProcrastinationPattern
+from .progress_log import ProgressLog
 from .project import Project
 from .task import Task
-from .goal import Goal
-from .progress_log import ProgressLog
-from .ai_interaction import AIInteraction
-from .procrastination_pattern import ProcrastinationPattern
-from .chat_history import ChatHistory
 
 __all__ = [
-    'User',
     'Project',
     'Task',
     'Goal',
