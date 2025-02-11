@@ -15,7 +15,7 @@ def send_message(
     Send a WhatsApp message using the API.
     Returns True if successful, False otherwise.
     """
-    url = f"{os.getenv('EVOLUTION_API_URL')}/chat/sendText/{instance}"
+    url = f"{os.getenv('EVOLUTION_API_URL')}/message/sendText/{instance}"
     message_prefix = r"🤖 *James*\n\n"
     text = f"{message_prefix}{text}"
     payload = {
