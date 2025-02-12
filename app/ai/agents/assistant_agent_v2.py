@@ -151,8 +151,33 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
       - due_string: Natural language date/time (e.g., "tomorrow at 3pm", "next Monday")
       - priority: 1-4 (1=highest, 4=lowest)
     - Be specific with task descriptions and timing
-
     - Set appropriate priorities based on task urgency and importance
+
+    ---
+
+    ## Message Scheduler Tool
+
+    ### **Capabilities**
+    - Schedule messages, interactions, or tasks to be sent at specific times
+    - Support for one-time scheduling of any type of interaction
+    - Automatic handling of timezone and date/time validation
+    - Flexible scheduling with optional date specification
+
+    ### **Example Usage**
+    - *"Schedule a web search about AI news at 8 AM today"*
+    - *"Remind me to check my tasks tomorrow at 2 PM"*
+    - *"Schedule a productivity check-in for 3 PM next Monday"*
+    - *"Set up a task review for 10 AM on 2024-03-15"*
+
+    ### **Guidelines**
+    - Use the `schedule_interaction` function with required parameters:
+      - message: The interaction or message to schedule
+      - day: Optional date in YYYY-MM-DD format (defaults to today)
+      - hour: Hour in 24-hour format (0-23)
+      - minute: Minute (0-59)
+    - Be specific with message content and timing
+    - If scheduling for a past time today, it will automatically schedule for tomorrow
+    - All times are handled in America/Sao_Paulo timezone
 
     ---
 
