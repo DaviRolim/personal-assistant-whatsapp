@@ -3,8 +3,9 @@ import logging
 import uvicorn
 from fastapi import FastAPI, Request
 
-# from app.integrations.evolution_api import get_base64_from_media_message
 from app.api.dependencies import chatbot_controller
+# from app.integrations.evolution_api import get_base64_from_media_message
+from app.core.scheduler import get_scheduler
 from app.db.database import Base, engine, get_db
 
 # Configure root logger
@@ -30,9 +31,8 @@ async def init_db():
 @app.on_event("startup")
 async def start_scheduler_event():
     try:
-        from app.scheduler import start_scheduler
-        scheduler = start_scheduler()
-        app.state.scheduler = scheduler
+        # Initialize the global scheduler
+        get_scheduler()  # This initializes and starts the scheduler if not already running
         print("Scheduler started successfully.")
     except Exception as e:
         print(f"Failed to start scheduler: {str(e)}")
@@ -40,10 +40,10 @@ async def start_scheduler_event():
 @app.on_event("shutdown")
 async def shutdown_scheduler_event():
     try:
-        if hasattr(app.state, 'scheduler'):
-            scheduler = app.state.scheduler
-            scheduler.shutdown()
-            print("Scheduler shutdown successfully.")
+        # Get the global scheduler instance and shut it down
+        get_scheduler().shutdown()  # Get the instance and shut it down in one line
+        print("Scheduler shutdown successfully.")
+        
         # dispose the engine
         await engine.dispose()
         print("Engine disposed successfully.")
@@ -59,13 +59,6 @@ def read_root():
 async def webhook(request: Request):
     body = await request.json()
     logging.info(f'Webhook received: {body}')
-    async with get_db() as db:
-        return await chatbot_controller.handle_webhook_data(body, db)
-
-@app.post("/trials")
-async def trials(request: Request):
-    body = await request.json()
-    print(f'body: {body}')
     async with get_db() as db:
         return await chatbot_controller.handle_webhook_data(body, db)
 

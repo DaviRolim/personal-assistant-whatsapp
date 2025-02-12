@@ -15,6 +15,7 @@ from openai.types.chat.chat_completion_message_tool_call import \
 from app.ai.tools.perplexity_tool import web_search
 from app.ai.tools.sql_tool import delete, insert, query, update
 from app.ai.tools.todoist_tool import create_task
+from app.core.scheduler import schedule_interaction
 
 load_dotenv()
 
@@ -105,6 +106,7 @@ function_map = {
     "execute_query": query,
     "execute_delete": delete,
     "web_search": web_search,
+    "schedule_interaction": schedule_interaction,
 }
 
 tools: List[ChatCompletionToolParam] = [
@@ -231,6 +233,10 @@ tools: List[ChatCompletionToolParam] = [
                         "type": "string",
                         "description": "The content of the task to create.",
                     },
+                    "description": {
+                        "type": "string",
+                        "description": "Description of the task",
+                    },
                     "due_string": {
                         "type": "string",
                         "description": "The due date of the task in natural language (e.g., 'tomorrow at 2pm').",
@@ -240,30 +246,40 @@ tools: List[ChatCompletionToolParam] = [
                         "description": "The priority of the task (1-4, with 1 being the highest).",
                     },
                 },
-                "required": ["content", "due_string", "priority"],
+                "required": ["content", "description", "due_string", "priority"],
             },
         },
     },
     {
         "type": "function",
         "function": {
-            "name": "web_search",
-            "description": "Perform a web search using Perplexity AI to get up-to-date information from the internet",
+            "name": "schedule_interaction",
+            "description": "Schedule a message to be sent at a specific time. The message can be any interaction like a web search, task creation, or general conversation.",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "query": {
+                    "message": {
                         "type": "string",
-                        "description": "The search query to look up"
+                        "description": "The message or interaction to schedule"
                     },
-                    "max_results": {
+                    "day": {
+                        "type": "string",
+                        "description": "The day to schedule the interaction (YYYY-MM-DD format). If not provided, defaults to today",
+                    },
+                    "hour": {
                         "type": "integer",
-                        "description": "Maximum number of results to return (default: 3)",
-                        "minimum": 1,
-                        "maximum": 10
+                        "description": "The hour to schedule the interaction (0-23)",
+                        "minimum": 0,
+                        "maximum": 23
+                    },
+                    "minute": {
+                        "type": "integer",
+                        "description": "The minute to schedule the interaction (0-59)",
+                        "minimum": 0,
+                        "maximum": 59
                     }
                 },
-                "required": ["query"]
+                "required": ["message"]
             }
         }
     }
