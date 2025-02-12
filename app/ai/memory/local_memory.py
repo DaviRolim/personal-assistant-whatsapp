@@ -2,7 +2,7 @@ from typing import List, Literal, Optional, cast
 
 from openai.types.chat import ChatCompletionMessageParam
 
-from app.core.ai.memory.base import BaseMemory
+from app.ai.memory.base import BaseMemory
 
 
 class LocalMemory(BaseMemory):

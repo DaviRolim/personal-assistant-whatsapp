@@ -1,10 +1,9 @@
-from openai import OpenAI
 import os
 
 from dotenv import load_dotenv
+from openai import OpenAI
 
-from app.core.ai.tools.common import execute_conversation_with_tools, tools
-
+from app.ai.tools.common import execute_conversation_with_tools, tools
 
 load_dotenv()
 

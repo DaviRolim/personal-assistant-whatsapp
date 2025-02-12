@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.core.ai_companion_instance import ai_companion_service
+from app.api.dependencies import chatbot_controller
 from app.db.database import get_db
 
 # Message lists for each scheduled time
@@ -56,7 +56,7 @@ async def run_scheduled_webhook(messages: List[str]) -> None:
             }
         }
         async with get_db() as db:
-            await ai_companion_service.handle_webhook_data(payload, db)
+            await chatbot_controller.handle_webhook_data(payload, db)
     except Exception as e:
         print(f"Error in scheduled webhook: {str(e)}")
 

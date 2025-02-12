@@ -1,9 +1,11 @@
 from typing import Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.ai.memory.base import BaseMemory
-from app.core.ai.memory.local_memory import LocalMemory
-from app.core.ai.memory.remote_memory import RemoteMemory
+from app.ai.memory.base import BaseMemory
+from app.ai.memory.local_memory import LocalMemory
+from app.ai.memory.remote_memory import RemoteMemory
+
 
 def memory_factory(memory_type: str, db: Optional[AsyncSession] = None, session_id: Optional[str] = None) -> BaseMemory:
     if memory_type == "local":

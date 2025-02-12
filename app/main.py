@@ -3,8 +3,8 @@ import logging
 import uvicorn
 from fastapi import FastAPI, Request
 
-# from app.core.ai.tools.whatsapp_tool import get_base64_from_media_message
-from app.core.ai_companion_instance import ai_companion_service
+# from app.integrations.evolution_api import get_base64_from_media_message
+from app.api.dependencies import chatbot_controller
 from app.db.database import Base, engine, get_db
 
 # Configure root logger
@@ -60,27 +60,15 @@ async def webhook(request: Request):
     body = await request.json()
     logging.info(f'Webhook received: {body}')
     async with get_db() as db:
-        return await ai_companion_service.handle_webhook_data(body, db)
+        return await chatbot_controller.handle_webhook_data(body, db)
 
 @app.post("/trials")
 async def trials(request: Request):
     body = await request.json()
     print(f'body: {body}')
     async with get_db() as db:
-        return await ai_companion_service.handle_webhook_data(body, db)
+        return await chatbot_controller.handle_webhook_data(body, db)
 
-# @app.post("/try-audio")
-# async def try_audio(request: Request):
-#     body = await request.json()
-#     print(f'body: {body}')
-#     res = await get_base64_from_media_message(body['instance'], body['data']['key']['id'], body['apikey'])
-#     return {"base64": res}
-
-
-# @app.get("/clear-history")
-# def clear_history():
-#     clear_messages()
-#     return {"status": "Message history cleared"}
 
 def run():
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

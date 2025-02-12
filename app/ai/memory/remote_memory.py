@@ -3,9 +3,9 @@ from typing import List, Literal, Optional, cast
 from openai.types.chat import ChatCompletionMessageParam
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.ai.memory.base import BaseMemory
+from app.ai.memory.base import BaseMemory
+from app.db.models.chat_history import ChatHistory
 from app.db.repository.chat_history_repository import ChatHistoryRepository
-from app.models.chat_history import ChatHistory
 
 
 class RemoteMemory(BaseMemory):

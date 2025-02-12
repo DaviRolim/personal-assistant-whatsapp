@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessageParam
 
-from app.core.ai.tools.common import execute_conversation_with_tools, tools
-from app.core.ai.tools.sql_tool import get_schema_info
+from app.ai.tools.common import execute_conversation_with_tools, tools
+from app.ai.tools.sql_tool import get_schema_info
 
 load_dotenv()
 

@@ -12,9 +12,9 @@ from openai.types.chat import (ChatCompletion,
 from openai.types.chat.chat_completion_message_tool_call import \
     ChatCompletionMessageToolCall
 
-from app.core.ai.tools.perplexity_tool import web_search
-from app.core.ai.tools.sql_tool import delete, insert, query, update
-from app.core.ai.tools.todoist_tool import create_task
+from app.ai.tools.perplexity_tool import web_search
+from app.ai.tools.sql_tool import delete, insert, query, update
+from app.ai.tools.todoist_tool import create_task
 
 load_dotenv()
 

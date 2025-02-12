@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.goal import Goal
+from app.db.models.goal import Goal
 
 from .base_repository import BaseRepository
 
