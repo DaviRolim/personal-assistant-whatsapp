@@ -20,7 +20,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     
     example_values = json.dumps([{"name": "John", "email": "john@example.com"}])
     example_delete_values = json.dumps([{"name": "John"}])
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now().astimezone(timezone(timedelta(hours=-3))).strftime("%Y-%m-%d")
     system_prompt = f"""
     # AI Personal Assistant System Prompt  
 
