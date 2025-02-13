@@ -15,6 +15,9 @@ logger = logging.getLogger(__name__)
 # Global scheduler instance
 scheduler: Optional[AsyncIOScheduler] = None
 
+# Define timezone
+TIMEZONE = ZoneInfo("America/Sao_Paulo")
+
 # Message lists for each scheduled time
 five_am_messages: List[str] = [
     "Good morning, check my projects and tasks and suggest something for me to start the day accomplishing something",
@@ -50,30 +53,30 @@ def get_scheduler() -> AsyncIOScheduler:
     """Get or create the global scheduler instance."""
     global scheduler
     if scheduler is None:
-        scheduler = AsyncIOScheduler(timezone=ZoneInfo("America/Sao_Paulo"))
+        scheduler = AsyncIOScheduler()
         
-        # Add daily scheduled jobs
+        # Add daily scheduled jobs with explicit timezone
         scheduler.add_job(
             run_scheduled_webhook,
-            CronTrigger(hour=5, minute=0),
+            CronTrigger(hour=5, minute=0, timezone=TIMEZONE),
             args=[five_am_messages],
             id="webhook_5am"
         )
         scheduler.add_job(
             run_scheduled_webhook,
-            CronTrigger(hour=10, minute=0),
+            CronTrigger(hour=10, minute=0, timezone=TIMEZONE),
             args=[ten_am_messages],
             id="webhook_10am"
         )
         scheduler.add_job(
             run_scheduled_webhook,
-            CronTrigger(hour=14, minute=0),
+            CronTrigger(hour=14, minute=0, timezone=TIMEZONE),
             args=[two_pm_messages],
             id="webhook_2pm"
         )
         scheduler.add_job(
             run_scheduled_webhook,
-            CronTrigger(hour=16, minute=0),
+            CronTrigger(hour=16, minute=0, timezone=TIMEZONE),
             args=[four_pm_messages],
             id="webhook_4pm"
         )
@@ -104,9 +107,8 @@ async def schedule_interaction(
         scheduler = get_scheduler()
         
         # Parse the target date/time
-        tz = ZoneInfo("America/Sao_Paulo")
         if day is None:
-            target_date = datetime.now(tz).date()
+            target_date = datetime.now(TIMEZONE).date()
         else:
             target_date = datetime.strptime(day, "%Y-%m-%d").date()
         
@@ -114,10 +116,10 @@ async def schedule_interaction(
         target_time = datetime.combine(
             target_date,
             datetime.strptime(f"{hour:02d}:{minute:02d}", "%H:%M").time()
-        ).replace(tzinfo=tz)
+        ).replace(tzinfo=TIMEZONE)
         
         # If the target time is in the past, add a day
-        if target_time < datetime.now(tz):
+        if target_time < datetime.now(TIMEZONE):
             target_time += timedelta(days=1)
         
         # Schedule the job
