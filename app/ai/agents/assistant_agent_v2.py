@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 
 from dotenv import load_dotenv
@@ -17,6 +17,7 @@ load_dotenv()
 async def agent_response(message: str, message_history: Optional[List[ChatCompletionMessageParam]] = None):
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     schema_info = get_schema_info()
+    
     
     example_values = json.dumps([{"name": "John", "email": "john@example.com"}])
     example_delete_values = json.dumps([{"name": "John"}])
