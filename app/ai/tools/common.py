@@ -68,6 +68,7 @@ async def execute_conversation_with_tools(
         messages=messages,
         tools=tools,
         tool_choice="auto",
+        reasoning_effort="high" # only work with o3-mini
     )
 
     choice = response.choices[0]
