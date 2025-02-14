@@ -215,6 +215,6 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
         client=client,
         messages=messages,
         tools=tools,
-        model="gpt-4o"#-mini"
+        model="o3-mini"
     )
     return response.choices[0].message.content
