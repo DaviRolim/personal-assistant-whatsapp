@@ -63,15 +63,17 @@ async def execute_conversation_with_tools(
     client: OpenAI,
     messages: List[ChatCompletionMessageParam],
     tools: List[ChatCompletionToolParam],
-    model: str = "o3-mini"
+    model: str = "o3-mini",
+    max_iterations: int = 10
 ) -> ChatCompletion:
-    """Execute a conversation with tool calling capabilities."""
+    """Execute a conversation with tool calling capabilities with iteration limits."""
+   
+
     response = client.chat.completions.create(
         model=model,
         messages=messages,
         tools=tools,
         tool_choice="auto",
-        # reasoning_effort="high" # only work with o3-mini
     )
 
     choice = response.choices[0]
@@ -80,8 +82,8 @@ async def execute_conversation_with_tools(
         "role": "assistant",
         "content": choice.message.content or "",
     }
+    
     if choice.message.tool_calls:
-        # Convert tool calls to the correct parameter type
         tool_calls_params: List[ChatCompletionMessageToolCallParam] = [
             {
                 "id": tool_call.id,
@@ -94,16 +96,30 @@ async def execute_conversation_with_tools(
             for tool_call in choice.message.tool_calls
         ]
         assistant_message["tool_calls"] = tool_calls_params
+    
     messages.append(assistant_message)
 
     if choice.message.tool_calls:
         messages = await handle_tool_calls(choice.message.tool_calls, messages)
-        return await execute_conversation_with_tools(client, messages, tools, model)
+        return await execute_conversation_with_tools(
+            client, messages, tools, model, max_iterations - 1
+        )
     
     if 'Final Answer:' in response.choices[0].message.content:
-        return response.choices[0].message.content.split('Final Answer:', 1)[1].strip()
+        # return response.choices[0].message.content.split('Final Answer:', 1)[1].strip()
+        return response.choices[0].message.content
+
+    if max_iterations <= 0:
+        return response.choices[0].message.content
     
-    return await execute_conversation_with_tools(client, messages, tools, model)
+    if max_iterations == 1:
+        messages.append({
+            "role": "system",
+            "content": "WARNING: Maximum iterations approaching. You MUST provide a Final Answer with the current results on this turn."
+        })
+    return await execute_conversation_with_tools(
+        client, messages, tools, model, max_iterations - 1
+    )
     
 function_map = {
     "create_task_on_todoist": create_task,
