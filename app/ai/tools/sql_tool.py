@@ -1,5 +1,4 @@
 import json
-import logging
 import re
 from datetime import datetime
 
@@ -8,10 +7,12 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.database import Base, get_db
 
-logger = logging.getLogger(__name__)
+from .tool_logging import log_tool_execution, setup_tool_logger
+
+# Set up logger for this tool
+logger = setup_tool_logger("sql")
 
 def _extract_table_name(sql_statement: str, operation: str):
-
     patterns = {
         "INSERT": r"INSERT\s+INTO\s+(\w+)",
         "UPDATE": r"UPDATE\s+(\w+)",
@@ -23,8 +24,6 @@ def _extract_table_name(sql_statement: str, operation: str):
     
     table_name = match.group(1)
     table = Base.metadata.tables.get(table_name)
-    # if not table:
-    #     return {"success": False, "message": f"Table {table_name} not found in schema"}
     return table
 
 def _process_data_values(table, values: list[dict]):
@@ -77,15 +76,26 @@ def format_query_result(result) -> str:
     
     return "\n".join(formatted_rows)
 
-async def query(query_string: str):
+async def query(reasoning: str, query_string: str):
+    log_tool_execution(
+        logger=logger,
+        tool_name="sql_query",
+        reasoning=reasoning,
+        query=query_string
+    )
     async with get_db() as db:
         result = await db.execute(text(query_string))
         rows = result.mappings().all()
         return format_query_result(rows)
 
-async def insert(insert_statement: str, values: list[dict]):
-    logger.info(f"[DH] Inserting into database with statement: {insert_statement}")
-    logger.info(f"[DH] Values: {values}")
+async def insert(reasoning: str, insert_statement: str, values: list[dict]):
+    log_tool_execution(
+        logger=logger,
+        tool_name="sql_insert",
+        reasoning=reasoning,
+        statement=insert_statement,
+        values=values
+    )
     try:
         table = _extract_table_name(insert_statement, "INSERT")
         if isinstance(table, dict):
@@ -96,17 +106,36 @@ async def insert(insert_statement: str, values: list[dict]):
             return processed_values
         
         async with get_db() as db:
-            return await _execute_sql_statement(db, insert_statement, processed_values)
+            result = await _execute_sql_statement(db, insert_statement, processed_values)
+            log_tool_execution(
+                logger=logger,
+                tool_name="sql_insert",
+                reasoning="Insert operation completed",
+                status="success" if result["success"] else "error",
+                message=result["message"]
+            )
+            return result
     except Exception as e:
+        log_tool_execution(
+            logger=logger,
+            tool_name="sql_insert",
+            reasoning="Exception during insert",
+            status="error",
+            error_message=str(e)
+        )
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
 
-async def update(update_statement: str, values: dict):
+async def update(reasoning: str, update_statement: str, values: dict):
     try:
-        logger.info(f"[DH] Updating database with statement: {update_statement}")
-        logger.info(f"[DH] Values: {values}")
+        log_tool_execution(
+            logger=logger,
+            tool_name="sql_update",
+            reasoning=reasoning,
+            statement=update_statement,
+            values=values
+        )
         table = _extract_table_name(update_statement, "UPDATE")
         if isinstance(table, dict):
-
             return table
         
         processed_values = _process_data_values(table, [values])
@@ -114,15 +143,34 @@ async def update(update_statement: str, values: dict):
             return processed_values
         
         async with get_db() as db:
-            return await _execute_sql_statement(db, update_statement, processed_values[0])
+            result = await _execute_sql_statement(db, update_statement, processed_values[0])
+            log_tool_execution(
+                logger=logger,
+                tool_name="sql_update",
+                reasoning="Update operation completed",
+                status="success" if result["success"] else "error",
+                message=result["message"]
+            )
+            return result
     except Exception as e:
-        logger.error(f"[DH] Error updating database: {str(e)}")
+        log_tool_execution(
+            logger=logger,
+            tool_name="sql_update",
+            reasoning="Exception during update",
+            status="error",
+            error_message=str(e)
+        )
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
 
-async def delete(delete_statement: str, values: dict):
+async def delete(reasoning: str, delete_statement: str, values: dict):
     try:
-        logger.info(f"[DH] Deleting from database with statement: {delete_statement}")
-        logger.info(f"[DH] Values: {values}")
+        log_tool_execution(
+            logger=logger,
+            tool_name="sql_delete",
+            reasoning=reasoning,
+            statement=delete_statement,
+            values=values
+        )
         table = _extract_table_name(delete_statement, "DELETE")
         if isinstance(table, dict):
             return table
@@ -132,10 +180,23 @@ async def delete(delete_statement: str, values: dict):
             return processed_values
         
         async with get_db() as db:
-            return await _execute_sql_statement(db, delete_statement, processed_values[0])
+            result = await _execute_sql_statement(db, delete_statement, processed_values[0])
+            log_tool_execution(
+                logger=logger,
+                tool_name="sql_delete",
+                reasoning="Delete operation completed",
+                status="success" if result["success"] else "error",
+                message=result["message"]
+            )
+            return result
     except Exception as e:
-        logger.error(f"[DH] Error deleting from database: {str(e)}")
-
+        log_tool_execution(
+            logger=logger,
+            tool_name="sql_delete",
+            reasoning="Exception during delete",
+            status="error",
+            error_message=str(e)
+        )
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
 
 def get_schema_info():

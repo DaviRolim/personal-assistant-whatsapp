@@ -188,9 +188,13 @@ tools: List[ChatCompletionToolParam] = [
                     "query_string": {
                         "type": "string",
                         "description": "The SQL query to execute"
+                    },
+                    "reasoning": {
+                        "type": "string",
+                        "description": "Detailed explanation of why this tool was chosen and how it helps achieve the goal. Include what data/tables you're querying, any specific fields or conditions being used, and why this approach helps fulfill the user's request."
                     }
                 },
-                "required": ["query_string"]
+                "required": ["query_string", "reasoning"]
             }
         }
     },
@@ -213,9 +217,13 @@ tools: List[ChatCompletionToolParam] = [
                             "description": "Dictionary of parameter names and their values"
                         },
                         "description": "List containing a single dictionary of parameter names and their values"
+                    },
+                    "reasoning": {
+                        "type": "string",
+                        "description": "Detailed explanation of why this tool was chosen and how it helps achieve the goal. Include what data you're inserting, which table it's going into, and why this insertion is necessary for the user's request."
                     }
                 },
-                "required": ["insert_statement", "values"]
+                "required": ["insert_statement", "values", "reasoning"]
             }
         }
     },
@@ -238,9 +246,13 @@ tools: List[ChatCompletionToolParam] = [
                             "description": "Dictionary of parameter names and their values"
                         },
                         "description": "List containing a single dictionary of parameter names and their values"
+                    },
+                    "reasoning": {
+                        "type": "string",
+                        "description": "Detailed explanation of why this tool was chosen and how it helps achieve the goal. Include what data you're updating, which table and fields are being modified, and why this update is necessary for the user's request."
                     }
                 },
-                "required": ["update_statement", "values"]
+                "required": ["update_statement", "values", "reasoning"]
             }
         }
     },
@@ -259,9 +271,13 @@ tools: List[ChatCompletionToolParam] = [
                     "values": {
                         "type": "object",
                         "description": "Dictionary of parameter names and their values"
+                    },
+                    "reasoning": {
+                        "type": "string",
+                        "description": "Detailed explanation of why this tool was chosen and how it helps achieve the goal. Include what data you're deleting, from which table, and why this deletion is necessary for the user's request."
                     }
                 },
-                "required": ["delete_statement", "values"]
+                "required": ["delete_statement", "values", "reasoning"]
             }
         }
     },
@@ -282,9 +298,13 @@ tools: List[ChatCompletionToolParam] = [
                         "description": "Maximum number of results to return (default: 3)",
                         "minimum": 1,
                         "maximum": 10
+                    },
+                    "reasoning": {
+                        "type": "string",
+                        "description": "Detailed explanation of why this tool was chosen and how it helps achieve the goal. Include what information you're searching for, why it needs to be up-to-date, and how this search will help answer the user's request."
                     }
                 },
-                "required": ["query"]
+                "required": ["query", "reasoning"]
             }
         }
     },
@@ -312,8 +332,12 @@ tools: List[ChatCompletionToolParam] = [
                         "type": "number",
                         "description": "The priority of the task (1-4, with 1 being the highest).",
                     },
+                    "reasoning": {
+                        "type": "string",
+                        "description": "Detailed explanation of why this tool was chosen and how it helps achieve the goal. Include why you're creating this task, why you chose the specific priority and due date, and how this task creation helps fulfill the user's needs."
+                    }
                 },
-                "required": ["content", "description", "due_string", "priority"],
+                "required": ["content", "description", "due_string", "priority", "reasoning"],
             },
         },
     },
@@ -344,9 +368,13 @@ tools: List[ChatCompletionToolParam] = [
                         "description": "The minute to schedule the interaction (0-59)",
                         "minimum": 0,
                         "maximum": 59
+                    },
+                    "reasoning": {
+                        "type": "string",
+                        "description": "Detailed explanation of why this tool was chosen and how it helps achieve the goal. Include why this interaction needs to be scheduled, why you chose the specific time, and how this scheduling helps fulfill the user's needs."
                     }
                 },
-                "required": ["message"]
+                "required": ["message", "reasoning"]
             }
         }
     }

@@ -69,6 +69,13 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
 
     ### **Example Usage**  
 
+    #### **Select Operation:**
+    ```sql
+    SELECT * FROM progress_log ORDER BY created_at DESC LIMIT 1
+    ```
+    **Reasoning:**
+    "The user wants to know the last entry in the progress log table. To get this information, I need to query the progress_log table and order by the created_at field in descending order, limiting to 1 record to get the most recent entry."
+
     #### **Insert Operation:**  
     ```sql
     INSERT INTO users (name, email) VALUES (:name, :email)
@@ -77,7 +84,8 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     ```json
     {example_values}
     ```  
-
+    **Reasoning:**
+    "Creating a new user record in the users table. This insertion is necessary because we received new user registration data with name and email fields that need to be stored in our database for user authentication and communication purposes."
 
     #### **Update Operation:**  
     ```sql
@@ -87,7 +95,8 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     ```json
     {example_values}
     ```  
-
+    **Reasoning:**
+    "Updating the email address for a specific user in the users table. This update is needed because the user has provided a new email address, and we need to ensure their contact information is current for communication purposes."
 
     #### **Delete Operation:**  
     ```sql
@@ -97,10 +106,8 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     ```json
     {example_delete_values}
     ```  
-
-
-    #### **Select Operation:**  
-    Use the `execute_query` function to run SELECT queries.  
+    **Reasoning:**
+    "Removing a user record from the users table. This deletion is necessary because the user has requested account removal, and we need to ensure all their personal data is properly removed from our system for privacy compliance."
 
     ### **Guidelines**  
     - **Parameterization:** Always use parameterized queries for security.  
@@ -109,6 +116,12 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - **Defaults:** If a required value is missing, use your best guess.  
     - **Progress Logging:** Whenever you create or update a task, project or goal, try to add an entry to the progress_log table.
     - **Tasks:** When I ask for my tasks, you should always ignore completed tasks, unless I ask for them specifically. If a decide to start a task you can ask for more information so that you can help me.
+    - **Detailed Reasoning:** For every SQL operation, provide comprehensive reasoning that includes:
+      1. What the user is trying to achieve
+      2. Which table(s) and field(s) are involved
+      3. Why this specific operation is needed
+      4. How the operation helps fulfill the user's request
+      5. Any specific conditions or ordering being applied
     
 
 
@@ -130,6 +143,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - Use the `web_search` function with clear, focused queries.  
     - Default to `max_results = 3`, unless a different number is specified.  
     - Always explain search results in a natural way.  
+    - Include clear reasoning for why the web search is necessary (e.g., "Gathering current market data for informed investment advice").
 
     ---
 
@@ -151,6 +165,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
       - description: Description of the task
       - due_string: Natural language date/time (e.g., "tomorrow at 3pm", "next Monday")
       - priority: 1-4 (1=highest, 4=lowest)
+      - reasoning: Clear explanation of why the task is being created (e.g., "Creating task to maintain regular health checkups")
     - Be specific with task descriptions and timing
     - Set appropriate priorities based on task urgency and importance
 
@@ -176,6 +191,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
       - day: Optional date in YYYY-MM-DD format (defaults to today)
       - hour: Hour in 24-hour format (0-23)
       - minute: Minute (0-59)
+      - reasoning: Clear explanation of why this interaction needs to be scheduled (e.g., "Scheduling regular productivity check to maintain momentum")
     - Be specific with message content and timing
     - If scheduling for a past time today, it will automatically schedule for tomorrow
     - All times are handled in America/Sao_Paulo timezone
