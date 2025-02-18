@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import List, Literal, TypedDict
+from typing import List, Literal, Optional, TypedDict
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -12,6 +12,7 @@ from openai.types.chat import (ChatCompletion,
                                ChatCompletionToolParam)
 from openai.types.chat.chat_completion_message_tool_call import \
     ChatCompletionMessageToolCall
+from pydantic import BaseModel, Field
 
 from app.ai.tools.perplexity_tool import web_search
 from app.ai.tools.sql_tool import delete, insert, query, update
@@ -27,6 +28,26 @@ class ToolMessage(TypedDict):
     role: Literal["tool"]
     content: str
     tool_call_id: str
+
+class StructuredResponse(BaseModel):
+    """Pydantic model for validating the structured response format."""
+    content: str = Field(..., description="The content of the message")
+    is_final: bool = Field(
+        default=False, 
+        description="Whether this is the final response after executing necessary tool calls"
+    )
+
+    def __str__(self) -> str:
+        """String representation returns the content."""
+        return self.content
+
+    def __getitem__(self, key):
+        """Support for string slicing operations."""
+        return self.content[key]
+    
+    def __len__(self) -> int:
+        """Support for len() operation."""
+        return len(self.content)
 
 async def handle_tool_calls(
     tool_calls: List[ChatCompletionMessageToolCall], 
@@ -65,22 +86,44 @@ async def execute_conversation_with_tools(
     tools: List[ChatCompletionToolParam],
     model: str = "o3-mini",
     max_iterations: int = 10
-) -> ChatCompletion:
+) -> StructuredResponse:
     """Execute a conversation with tool calling capabilities with iteration limits."""
-   
+    
+    # Add system message to enforce JSON structure if not present
+    if not any("JSON" in str(msg.get("content", "")) for msg in messages if msg["role"] == "system"):
+        messages.insert(0, {
+            "role": "system",
+            "content": "You must respond with JSON that matches this structure: {\"content\": string, \"is_final\": boolean}. The content field should contain your message, and is_final should be true only when you have completed all necessary tool calls and have a final answer."
+        })
 
     response = client.chat.completions.create(
         model=model,
         messages=messages,
         tools=tools,
         tool_choice="auto",
+        response_format={ "type": "json_object" }
     )
 
     choice = response.choices[0]
     logger.info(f"[DH] Choice: \n{choice}")
+    
+    # Parse and validate the structured output
+    try:
+        if choice.message.content:
+            structured_response = StructuredResponse.model_validate_json(choice.message.content)
+        else:
+            structured_response = StructuredResponse(content="", is_final=False)
+    except Exception as e:
+        logger.warning(f"Failed to parse structured response: {e}")
+        # Fallback to legacy format
+        structured_response = StructuredResponse(
+            content=choice.message.content or "",
+            is_final='Final Answer:' in (choice.message.content or "")
+        )
+    
     assistant_message: ChatCompletionAssistantMessageParam = {
         "role": "assistant",
-        "content": choice.message.content or "",
+        "content": str(structured_response.content),
     }
     
     if choice.message.tool_calls:
@@ -105,17 +148,19 @@ async def execute_conversation_with_tools(
             client, messages, tools, model, max_iterations - 1
         )
     
-    if 'Final Answer:' in response.choices[0].message.content:
-        # return response.choices[0].message.content.split('Final Answer:', 1)[1].strip()
-        return response.choices[0].message.content
+    if structured_response.is_final:
+        return structured_response.content
 
     if max_iterations <= 0:
-        return response.choices[0].message.content
+        return StructuredResponse(
+            content=structured_response.content,
+            is_final=True
+        )
     
     if max_iterations == 1:
         messages.append({
             "role": "system",
-            "content": "WARNING: Maximum iterations approaching. You MUST provide a Final Answer with the current results on this turn."
+            "content": "WARNING: Maximum iterations approaching. You MUST provide a Final Answer with is_final: true in your response on this turn."
         })
     return await execute_conversation_with_tools(
         client, messages, tools, model, max_iterations - 1
