@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import List, Literal, TypedDict
 
 from dotenv import load_dotenv
@@ -18,6 +19,8 @@ from app.ai.tools.todoist_tool import create_task
 from app.core.scheduler import schedule_interaction
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 
 class ToolMessage(TypedDict):
@@ -68,10 +71,11 @@ async def execute_conversation_with_tools(
         messages=messages,
         tools=tools,
         tool_choice="auto",
-        reasoning_effort="high" # only work with o3-mini
+        # reasoning_effort="high" # only work with o3-mini
     )
 
     choice = response.choices[0]
+    logger.info(f"[DH] Choice: \n{choice}")
     assistant_message: ChatCompletionAssistantMessageParam = {
         "role": "assistant",
         "content": choice.message.content or "",
@@ -93,12 +97,13 @@ async def execute_conversation_with_tools(
     messages.append(assistant_message)
 
     if choice.message.tool_calls:
-        print(f"Handling tool calls: {choice.message.tool_calls}")    
         messages = await handle_tool_calls(choice.message.tool_calls, messages)
         return await execute_conversation_with_tools(client, messages, tools, model)
     
-    return response
-
+    if 'Final Answer:' in response.choices[0].message.content:
+        return response.choices[0].message.content.split('Final Answer:', 1)[1].strip()
+    
+    return await execute_conversation_with_tools(client, messages, tools, model)
     
 function_map = {
     "create_task_on_todoist": create_task,

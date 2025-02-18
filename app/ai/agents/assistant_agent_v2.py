@@ -200,15 +200,14 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - **Thinking:** Always think step by step. Think what steps are needed to complete the task, what tools are needed, and then execute it. For example given a name of the task and a request to update, you would need to fetch all tasks from the database using the query tool, then find the id of the task the user is talking about, update the task using the update tool, and then create a progress log using the insert tool.
     - **Thinking:** If the I ask to create a task or update a task I'll use what I think their name is, but It wont match exactly, so you should fetch all first to find the id of the task or project I'm referring to.
     - **Handling Errors:** Whenever a tool is not executed successfully, you should send me the full error log in your response.
+    - **Final Answer:** Please perform all your reasoning and log your thoughts under the heading 'Thoughts:' but only provide your final answer after the token 'Final Answer:'.
+    - **Final Answer:** After completing all reasoning and tool calls, please include a section starting with 'Final Answer:' that contains your final output for me.
 
     """
-    # TODO prompt improvement: give an example of thinking proccess for adding a progress log
-    # it will need to fetch all tasks in_progress, check the id of the task the user is talking about
-    # then when creating the progress log, use the task id
     messages: List[ChatCompletionMessageParam] = [{"role": "system", "content": system_prompt}]
     print(f"[DH] message_history: {message_history}")
     if message_history:
-        messages.extend(message_history[:5]) # TODO this should be configurable
+        messages.extend(message_history)
     messages.append({"role": "user", "content": message})
     
     response = await execute_conversation_with_tools(
@@ -217,4 +216,4 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
         tools=tools,
         model="o3-mini"
     )
-    return response.choices[0].message.content
+    return response
