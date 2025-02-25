@@ -397,7 +397,7 @@ tools: List[ChatCompletionToolParam] = [
                                 "description": "The preferred style for AI responses"
                             }
                         },
-                        "additionalProperties": true
+                        "additionalProperties": True
                     },
                     "reasoning": {
                         "type": "string",
