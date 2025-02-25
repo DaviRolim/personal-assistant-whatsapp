@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy dependency files
 COPY pyproject.toml ./
 
+# Copy preferences.json file
+COPY preferences.json ./
+
 # Install UV and install dependencies
 RUN pip install uv && \
     uv pip install --system .
