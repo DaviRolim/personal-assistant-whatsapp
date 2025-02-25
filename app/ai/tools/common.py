@@ -15,6 +15,7 @@ from openai.types.chat.chat_completion_message_tool_call import \
 from pydantic import BaseModel, Field
 
 from app.ai.tools.perplexity_tool import web_search
+from app.ai.tools.preferences_tool import update_preferences
 from app.ai.tools.sql_tool import delete, insert, query, update
 from app.ai.tools.todoist_tool import create_task
 from app.core.scheduler import schedule_interaction
@@ -174,6 +175,7 @@ function_map = {
     "execute_delete": delete,
     "web_search": web_search,
     "schedule_interaction": schedule_interaction,
+    "update_preferences": update_preferences,
 }
 
 tools: List[ChatCompletionToolParam] = [
@@ -375,6 +377,34 @@ tools: List[ChatCompletionToolParam] = [
                     }
                 },
                 "required": ["message", "reasoning"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "update_preferences",
+            "description": "Update user preferences in the preferences.json file",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "preferences": {
+                        "type": "object",
+                        "description": "Dictionary of preferences to update",
+                        "properties": {
+                            "answer_style": {
+                                "type": "string",
+                                "description": "The preferred style for AI responses"
+                            }
+                        },
+                        "additionalProperties": true
+                    },
+                    "reasoning": {
+                        "type": "string",
+                        "description": "Detailed explanation of why this tool was chosen and how it helps achieve the goal. Include what preferences are being updated and why these changes help fulfill the user's request."
+                    }
+                },
+                "required": ["preferences", "reasoning"]
             }
         }
     }

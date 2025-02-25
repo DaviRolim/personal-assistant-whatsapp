@@ -12,7 +12,8 @@ from app.ai.tools.sql_tool import get_schema_info
 
 load_dotenv()
 
-
+preferences_file = json.load(open("preferences.json"))
+preferences = preferences_file["preferences"]
 
 async def agent_response(message: str, message_history: Optional[List[ChatCompletionMessageParam]] = None):
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -164,7 +165,7 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
       - content: Clear task description
       - description: Description of the task
       - due_string: Natural language date/time (e.g., "tomorrow at 3pm", "next Monday")
-      - priority: 1-4 (1=highest, 4=lowest)
+      - priority: 1-4 (1=lowest, 4=highest)
       - reasoning: Clear explanation of why the task is being created (e.g., "Creating task to maintain regular health checkups")
     - Be specific with task descriptions and timing
     - Set appropriate priorities based on task urgency and importance
@@ -196,6 +197,24 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
     - If scheduling for a past time today, it will automatically schedule for tomorrow
     - All times are handled in America/Sao_Paulo timezone
 
+    ## Preferences Management Tool
+
+    ### **Capabilities**
+    - Update user preferences in the preferences.json file
+    - Customize response style and behavior based on user preferences
+    - Adapt communication style to match user preferences
+
+    ### **Example Usage**
+    - When user says "give me more details in your answers", update preferences to be more detailed
+    - When user requests "be more concise", update preferences for shorter responses
+    - When user asks for "more professional tone", adjust the answer style accordingly
+
+    ### **Guidelines**
+    - Use the `update_preferences` function to modify user preferences
+    - Current preferences are stored in preferences.json
+    - Always explain the reasoning behind preference updates
+    - Confirm preference updates with the user
+    - Current preferences: {preferences}
     ---
 
     ## Motivational & Productivity Coaching  
@@ -221,6 +240,8 @@ async def agent_response(message: str, message_history: Optional[List[ChatComple
   - `"is_final"`: A boolean that should be **true only if you have executed all necessary tool calls and no further operations remain**.
   
   **Important:** If you still have pending actions or if any tool calls need to be executed, you must set `"is_final": false` even if you include a summary of your reasoning. Do not include any extra keys like `"steps"` or `"message"`.
+
+    
 """
     messages: List[ChatCompletionMessageParam] = [{"role": "system", "content": system_prompt}]
     print(f"[DH] message_history: {message_history}")

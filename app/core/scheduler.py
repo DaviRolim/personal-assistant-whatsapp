@@ -38,7 +38,7 @@ two_pm_messages: List[str] = [
 
 four_pm_messages: List[str] = [
     "At 4 PM, summarize my progress and provide suggestions for wrapping up the day",
-    "Good afternoon, ask me what I'm doing and if I'm doing something that is not aligned with my priorities, persuade me to do something more productive"
+    # "Good afternoon, ask me what I'm doing and if I'm doing something that is not aligned with my priorities, persuade me to do something more productive"
 ]
 
 async def run_scheduled_webhook(messages: List[str]) -> None:
@@ -68,12 +68,12 @@ def get_scheduler() -> AsyncIOScheduler:
             args=[ten_am_messages],
             id="webhook_10am"
         )
-        scheduler.add_job(
-            run_scheduled_webhook,
-            CronTrigger(hour=14, minute=0, timezone=TIMEZONE),
-            args=[two_pm_messages],
-            id="webhook_2pm"
-        )
+        # scheduler.add_job(
+        #     run_scheduled_webhook,
+        #     CronTrigger(hour=14, minute=0, timezone=TIMEZONE),
+        #     args=[two_pm_messages],
+        #     id="webhook_2pm"
+        # )
         scheduler.add_job(
             run_scheduled_webhook,
             CronTrigger(hour=16, minute=0, timezone=TIMEZONE),
